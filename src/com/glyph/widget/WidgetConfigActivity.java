@@ -93,6 +93,28 @@ public class WidgetConfigActivity extends Activity {
     private TextView textCalScaleVal;
     private Button btnResetCalTransform;
 
+    // Calendar Two-Tone Color Customizer fields
+    private LinearLayout tabCalTone1;
+    private LinearLayout tabCalTone2;
+    private View viewCalColor1Preview;
+    private TextView textCalColor1Hex;
+    private TextView textCalColor1Status;
+    private View viewCalColor2Preview;
+    private TextView textCalColor2Hex;
+    private TextView textCalColor2Status;
+    private TextView textCalActiveToneLabel;
+    private LinearLayout layoutCalQuickPalette;
+    private SeekBar seekCalHue;
+    private TextView textCalHueVal;
+    private SeekBar seekCalSaturation;
+    private TextView textCalSaturationVal;
+    private SeekBar seekCalValue;
+    private TextView textCalValueVal;
+    private Button btnResetCalActiveTone;
+    private Button btnResetCalBothTones;
+    private int activeCalTone = 1;
+    private boolean isUpdatingCalColorFromCode = false;
+
     private SeekBar seekMarginLeft;
     private SeekBar seekMarginTop;
     private SeekBar seekMarginRight;
@@ -126,6 +148,7 @@ public class WidgetConfigActivity extends Activity {
         initGlassControls();
         initBorderControls();
         initCalendarStudioControls();
+        initCalendarColorControls();
         initControls();
         refreshPreview();
     }
@@ -182,6 +205,25 @@ public class WidgetConfigActivity extends Activity {
         seekCalScale = (SeekBar) findViewById(R.id.seek_cal_scale);
         textCalScaleVal = (TextView) findViewById(R.id.text_cal_scale_val);
         btnResetCalTransform = (Button) findViewById(R.id.btn_reset_cal_transform);
+
+        tabCalTone1 = (LinearLayout) findViewById(R.id.tab_cal_tone1);
+        tabCalTone2 = (LinearLayout) findViewById(R.id.tab_cal_tone2);
+        viewCalColor1Preview = findViewById(R.id.view_cal_color1_preview);
+        textCalColor1Hex = (TextView) findViewById(R.id.text_cal_color1_hex);
+        textCalColor1Status = (TextView) findViewById(R.id.text_cal_color1_status);
+        viewCalColor2Preview = findViewById(R.id.view_cal_color2_preview);
+        textCalColor2Hex = (TextView) findViewById(R.id.text_cal_color2_hex);
+        textCalColor2Status = (TextView) findViewById(R.id.text_cal_color2_status);
+        textCalActiveToneLabel = (TextView) findViewById(R.id.text_cal_active_tone_label);
+        layoutCalQuickPalette = (LinearLayout) findViewById(R.id.layout_cal_quick_palette);
+        seekCalHue = (SeekBar) findViewById(R.id.seek_cal_hue);
+        textCalHueVal = (TextView) findViewById(R.id.text_cal_hue_val);
+        seekCalSaturation = (SeekBar) findViewById(R.id.seek_cal_saturation);
+        textCalSaturationVal = (TextView) findViewById(R.id.text_cal_saturation_val);
+        seekCalValue = (SeekBar) findViewById(R.id.seek_cal_value);
+        textCalValueVal = (TextView) findViewById(R.id.text_cal_value_val);
+        btnResetCalActiveTone = (Button) findViewById(R.id.btn_reset_cal_active_tone);
+        btnResetCalBothTones = (Button) findViewById(R.id.btn_reset_cal_both_tones);
 
         seekMarginLeft = (SeekBar) findViewById(R.id.seek_margin_left);
         seekMarginTop = (SeekBar) findViewById(R.id.seek_margin_top);
@@ -243,6 +285,7 @@ public class WidgetConfigActivity extends Activity {
                 updateThemeSpecsDisplay(selected);
                 updateGlassCardVisibility(selected.id);
                 updateBorderCustomizerUI();
+                updateCalendarColorCustomizerUI();
                 refreshPreview();
                 GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
             }
@@ -806,6 +849,246 @@ public class WidgetConfigActivity extends Activity {
         } else {
             textCalYVal.setText(y + " dp (Up)");
         }
+    }
+
+    private void initCalendarColorControls() {
+        // Rainbow Gradient for Calendar Hue SeekBar
+        GradientDrawable rainbow = new GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[]{
+                        0xFFFF0000, 0xFFFFFF00, 0xFF00FF00,
+                        0xFF00FFFF, 0xFF0000FF, 0xFFFF00FF, 0xFFFF0000
+                }
+        );
+        rainbow.setCornerRadius(8f);
+        seekCalHue.setBackground(rainbow);
+        seekCalHue.setPadding(16, 12, 16, 12);
+
+        // Tone Tab Selection
+        tabCalTone1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (activeCalTone != 1) {
+                    activeCalTone = 1;
+                    updateCalendarColorCustomizerUI();
+                }
+            }
+        });
+
+        tabCalTone2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (activeCalTone != 2) {
+                    activeCalTone = 2;
+                    updateCalendarColorCustomizerUI();
+                }
+            }
+        });
+
+        // Quick Swatches for Calendar
+        final int[] quickColors = {
+                0xFFFFFFFF, // Pure White
+                0xFF94A3B8, // Silver Slate
+                0xFF334155, // Charcoal
+                0xFFEF4444, // Red
+                0xFFF59E0B, // Amber
+                0xFF10B981, // Emerald
+                0xFF38BDF8, // Cyan Blue
+                0xFF8B5CF6  // Violet
+        };
+
+        layoutCalQuickPalette.removeAllViews();
+        float density = getResources().getDisplayMetrics().density;
+        int sizePx = (int) (32 * density);
+        int marginPx = (int) (8 * density);
+
+        for (final int color : quickColors) {
+            View dot = new View(this);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(sizePx, sizePx);
+            lp.setMargins(0, 0, marginPx, 0);
+            dot.setLayoutParams(lp);
+
+            GradientDrawable gd = new GradientDrawable();
+            gd.setShape(GradientDrawable.OVAL);
+            gd.setColor(color);
+            gd.setStroke(2, 0xFF475569);
+            dot.setBackground(gd);
+
+            dot.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (activeCalTone == 1) {
+                        prefs.setCalendarColor1(widgetType, color);
+                    } else {
+                        prefs.setCalendarColor2(widgetType, color);
+                    }
+                    updateCalendarColorCustomizerUI();
+                    refreshPreview();
+                    GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                }
+            });
+
+            layoutCalQuickPalette.addView(dot);
+        }
+
+        // HSV SeekBars Listeners
+        SeekBar.OnSeekBarChangeListener calHsvListener = new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (isUpdatingCalColorFromCode) return;
+
+                float hue = seekCalHue.getProgress();
+                float sat = seekCalSaturation.getProgress() / 100f;
+                float val = seekCalValue.getProgress() / 100f;
+
+                textCalHueVal.setText(Math.round(hue) + "°");
+                textCalSaturationVal.setText(Math.round(sat * 100f) + "%");
+                textCalValueVal.setText(Math.round(val * 100f) + "%");
+
+                int color = Color.HSVToColor(new float[]{hue, sat, val});
+                if (activeCalTone == 1) {
+                    prefs.setCalendarColor1(widgetType, color);
+                    updateCalTone1Display(color, true);
+                } else {
+                    prefs.setCalendarColor2(widgetType, color);
+                    updateCalTone2Display(color, true);
+                }
+
+                refreshPreview();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+            }
+        };
+
+        seekCalHue.setOnSeekBarChangeListener(calHsvListener);
+        seekCalSaturation.setOnSeekBarChangeListener(calHsvListener);
+        seekCalValue.setOnSeekBarChangeListener(calHsvListener);
+
+        btnResetCalActiveTone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (activeCalTone == 1) {
+                    prefs.resetCalendarColor1(widgetType);
+                    Toast.makeText(WidgetConfigActivity.this, "Reset Tone 1 to theme default", Toast.LENGTH_SHORT).show();
+                } else {
+                    prefs.resetCalendarColor2(widgetType);
+                    Toast.makeText(WidgetConfigActivity.this, "Reset Tone 2 to theme default", Toast.LENGTH_SHORT).show();
+                }
+                updateCalendarColorCustomizerUI();
+                refreshPreview();
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+            }
+        });
+
+        btnResetCalBothTones.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prefs.resetCalendarColors(widgetType);
+                updateCalendarColorCustomizerUI();
+                refreshPreview();
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                Toast.makeText(WidgetConfigActivity.this, "Reset both calendar colors to theme default", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        updateCalendarColorCustomizerUI();
+    }
+
+    private void updateCalTone1Display(int color, boolean isCustom) {
+        GradientDrawable swatch = new GradientDrawable();
+        swatch.setShape(GradientDrawable.OVAL);
+        swatch.setColor(color);
+        swatch.setStroke(2, 0xFF64748B);
+        viewCalColor1Preview.setBackground(swatch);
+
+        textCalColor1Hex.setText(String.format("#%06X", (0xFFFFFF & color)));
+        if (isCustom) {
+            textCalColor1Status.setText("Custom Override");
+            textCalColor1Status.setTextColor(getResources().getColor(R.color.accent_blue));
+        } else {
+            textCalColor1Status.setText("Theme Default");
+            textCalColor1Status.setTextColor(getResources().getColor(R.color.text_secondary));
+        }
+    }
+
+    private void updateCalTone2Display(int color, boolean isCustom) {
+        GradientDrawable swatch = new GradientDrawable();
+        swatch.setShape(GradientDrawable.OVAL);
+        swatch.setColor(color);
+        swatch.setStroke(2, 0xFF64748B);
+        viewCalColor2Preview.setBackground(swatch);
+
+        textCalColor2Hex.setText(String.format("#%06X", (0xFFFFFF & color)));
+        if (isCustom) {
+            textCalColor2Status.setText("Custom Override");
+            textCalColor2Status.setTextColor(getResources().getColor(R.color.accent_blue));
+        } else {
+            textCalColor2Status.setText("Theme Default");
+            textCalColor2Status.setTextColor(getResources().getColor(R.color.text_secondary));
+        }
+    }
+
+    private void updateCalendarColorCustomizerUI() {
+        if (seekCalHue == null) return;
+
+        int color1 = prefs.getCalendarColor1(widgetType);
+        boolean isCustom1 = prefs.hasCustomCalendarColor1(widgetType);
+        updateCalTone1Display(color1, isCustom1);
+
+        int color2 = prefs.getCalendarColor2(widgetType);
+        boolean isCustom2 = prefs.hasCustomCalendarColor2(widgetType);
+        updateCalTone2Display(color2, isCustom2);
+
+        // Highlight Active Tone Tab
+        float density = getResources().getDisplayMetrics().density;
+        int activeBorderPx = (int) (2 * density);
+        int inactiveBorderPx = (int) (1 * density);
+        int cornerRadiusPx = (int) (12 * density);
+
+        GradientDrawable tab1Bg = new GradientDrawable();
+        tab1Bg.setCornerRadius(cornerRadiusPx);
+        tab1Bg.setColor(0xFF1E293B);
+
+        GradientDrawable tab2Bg = new GradientDrawable();
+        tab2Bg.setCornerRadius(cornerRadiusPx);
+        tab2Bg.setColor(0xFF1E293B);
+
+        int activeColor;
+        if (activeCalTone == 1) {
+            tab1Bg.setStroke(activeBorderPx, 0xFF38BDF8);
+            tab2Bg.setStroke(inactiveBorderPx, 0xFF334155);
+            textCalActiveToneLabel.setText("Editing Tone 1 (Primary - Month Header & Active Badge)");
+            activeColor = color1;
+        } else {
+            tab1Bg.setStroke(inactiveBorderPx, 0xFF334155);
+            tab2Bg.setStroke(activeBorderPx, 0xFF38BDF8);
+            textCalActiveToneLabel.setText("Editing Tone 2 (Secondary - Day Headers & Dates)");
+            activeColor = color2;
+        }
+
+        tabCalTone1.setBackground(tab1Bg);
+        tabCalTone2.setBackground(tab2Bg);
+
+        // Set HSV seekbars to the active tone's color
+        float[] hsv = new float[3];
+        Color.colorToHSV(activeColor, hsv);
+
+        isUpdatingCalColorFromCode = true;
+        seekCalHue.setProgress(Math.round(hsv[0]));
+        textCalHueVal.setText(Math.round(hsv[0]) + "°");
+
+        seekCalSaturation.setProgress(Math.round(hsv[1] * 100f));
+        textCalSaturationVal.setText(Math.round(hsv[1] * 100f) + "%");
+
+        seekCalValue.setProgress(Math.round(hsv[2] * 100f));
+        textCalValueVal.setText(Math.round(hsv[2] * 100f) + "%");
+        isUpdatingCalColorFromCode = false;
     }
 
     private void updateThemeSpecsDisplay(GlyphTheme.ThemeDef theme) {

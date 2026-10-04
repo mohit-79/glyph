@@ -128,6 +128,14 @@ public class GlyphPrefs {
         prefs.edit().putInt(widgetType + "_cal_color_1", color).apply();
     }
 
+    public boolean hasCustomCalendarColor1(String widgetType) {
+        return prefs.getInt(widgetType + "_cal_color_1", NO_OVERRIDE_COLOR) != NO_OVERRIDE_COLOR;
+    }
+
+    public void resetCalendarColor1(String widgetType) {
+        prefs.edit().remove(widgetType + "_cal_color_1").apply();
+    }
+
     /**
      * Returns the effective Calendar Color 2 (Secondary): custom override if set, else theme default.
      */
@@ -141,6 +149,14 @@ public class GlyphPrefs {
 
     public void setCalendarColor2(String widgetType, int color) {
         prefs.edit().putInt(widgetType + "_cal_color_2", color).apply();
+    }
+
+    public boolean hasCustomCalendarColor2(String widgetType) {
+        return prefs.getInt(widgetType + "_cal_color_2", NO_OVERRIDE_COLOR) != NO_OVERRIDE_COLOR;
+    }
+
+    public void resetCalendarColor2(String widgetType) {
+        prefs.edit().remove(widgetType + "_cal_color_2").apply();
     }
 
     public void resetCalendarColors(String widgetType) {

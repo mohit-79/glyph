@@ -94,13 +94,22 @@ Draws an authentic, real-time monthly calendar directly onto the 2D canvas with 
 * In-app interactive style selector with previous/next quick-cycling buttons and live descriptions.
 * One-tap reset button to restore default positioning and scale.
 
-### 5. Border Studio & Full sRGB Color Gamut Picker
+### 5. Two-Tone Calendar sRGB Gamut Customizer
+Provides independent full-spectrum color customization for the two functional calendar tones:
+* **Tone 1 (Primary Accent)**: Month/Year header, active day badge, capsule pill bounds, and progress gauge arcs.
+* **Tone 2 (Secondary Tone)**: Day-of-week headers, secondary date numerals, grid dividers, and dial tracks.
+* **Dual-Tab UI**: Tabbed selector with live circular swatches, dynamic hex codes, and "Theme Default" vs "Custom Override" indicators.
+* **Full sRGB Gamut**: Rainbow Hue spectrum bar (0 to 360 degrees), Saturation slider (0% to 100%), and Brightness/Value slider (0% to 100%) for exact hue tuning.
+* **8-Color Quick Palette**: Fast 1-tap presets for White, Slate, Charcoal, Red, Amber, Emerald, Cyan, and Violet.
+* **Selective Resets**: "Reset Active Tone" button and "Reset Both Tones" button to independently restore active theme defaults.
+
+### 6. Border Studio & Full sRGB Color Gamut Picker
 * **Thickness Control**: Continuous slider from `0dp` (completely borderless) to `16dp` (ultra thick).
 * **Full sRGB Gamut**: Rainbow Hue spectrum bar (0 to 360 degrees), Saturation slider (0% to 100%), and Brightness/Value slider (0% to 100%) providing access to all 16.7 million colors.
 * **8-Color Quick Palette**: Quick swatches for White, Slate, Charcoal, Red, Amber, Emerald, Cyan, and Violet.
 * **Theme Default Reset**: Instant reset button reverting to the active theme's default border palette.
 
-### 6. Curated Theme Catalog (`GlyphTheme.java`)
+### 7. Curated Theme Catalog (`GlyphTheme.java`)
 Contains 27 curated themes with coordinated colors for backgrounds, borders, and typography:
 1. Obsidian Dark
 2. Porcelain Light
@@ -177,7 +186,7 @@ The output APK is compiled, dexed, aligned, and signed with `debug.keystore`, pr
 * [x] **Commit 7**: Border Customizer (0 to 16dp Thickness, sRGB HSV Spectrum & Quick Palette)
 * [x] **Commit 8**: Dynamic 2D Calendar Foundation with Live Dates & Continuous (X, Y, Scale) Transforms
 * [x] **Commit 9**: Multiple Artistic Calendar Styles (11 Distinct Aesthetic Variants)
-* [ ] **Commit 10**: Two-Tone Calendar sRGB Gamut Customizer
+* [x] **Commit 10**: Two-Tone Calendar sRGB Gamut Customizer
 * [ ] **Commit 11**: Movable & Resizable Test Clock Foundation
 * [ ] **Commit 12**: Multiple Artistic Clock Styles (12 Distinct Aesthetic Variants)
 * [ ] **Commit 13**: Clock Two-Tone sRGB Gamut Customizer
