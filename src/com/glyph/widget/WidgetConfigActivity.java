@@ -115,6 +115,16 @@ public class WidgetConfigActivity extends Activity {
     private int activeCalTone = 1;
     private boolean isUpdatingCalColorFromCode = false;
 
+    // Clock Studio (Position & Scale) fields
+    private Button btnToggleClockFormat;
+    private SeekBar seekClockX;
+    private TextView textClockXVal;
+    private SeekBar seekClockY;
+    private TextView textClockYVal;
+    private SeekBar seekClockScale;
+    private TextView textClockScaleVal;
+    private Button btnResetClockTransform;
+
     private SeekBar seekMarginLeft;
     private SeekBar seekMarginTop;
     private SeekBar seekMarginRight;
@@ -149,6 +159,7 @@ public class WidgetConfigActivity extends Activity {
         initBorderControls();
         initCalendarStudioControls();
         initCalendarColorControls();
+        initClockStudioControls();
         initControls();
         refreshPreview();
     }
@@ -224,6 +235,15 @@ public class WidgetConfigActivity extends Activity {
         textCalValueVal = (TextView) findViewById(R.id.text_cal_value_val);
         btnResetCalActiveTone = (Button) findViewById(R.id.btn_reset_cal_active_tone);
         btnResetCalBothTones = (Button) findViewById(R.id.btn_reset_cal_both_tones);
+
+        btnToggleClockFormat = (Button) findViewById(R.id.btn_toggle_clock_format);
+        seekClockX = (SeekBar) findViewById(R.id.seek_clock_x);
+        textClockXVal = (TextView) findViewById(R.id.text_clock_x_val);
+        seekClockY = (SeekBar) findViewById(R.id.seek_clock_y);
+        textClockYVal = (TextView) findViewById(R.id.text_clock_y_val);
+        seekClockScale = (SeekBar) findViewById(R.id.seek_clock_scale);
+        textClockScaleVal = (TextView) findViewById(R.id.text_clock_scale_val);
+        btnResetClockTransform = (Button) findViewById(R.id.btn_reset_clock_transform);
 
         seekMarginLeft = (SeekBar) findViewById(R.id.seek_margin_left);
         seekMarginTop = (SeekBar) findViewById(R.id.seek_margin_top);
@@ -1122,6 +1142,136 @@ public class WidgetConfigActivity extends Activity {
                 + String.format("#%06X", (0xFFFFFF & clockColor1)) + " / "
                 + String.format("#%06X", (0xFFFFFF & clockColor2));
         textThemeSpecs.setText(specs);
+    }
+
+    private void initClockStudioControls() {
+        int clockX = prefs.getClockX(widgetType);
+        int clockY = prefs.getClockY(widgetType);
+        int clockScale = prefs.getClockScale(widgetType);
+        boolean is24h = prefs.isClock24Hour(widgetType);
+
+        updateClockFormatButton(is24h);
+
+        btnToggleClockFormat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean cur = prefs.isClock24Hour(widgetType);
+                boolean next = !cur;
+                prefs.setClock24Hour(widgetType, next);
+                updateClockFormatButton(next);
+                refreshPreview();
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+            }
+        });
+
+        seekClockX.setProgress(clockX + 120);
+        updateClockXDisplay(clockX);
+
+        seekClockY.setProgress(clockY + 80);
+        updateClockYDisplay(clockY);
+
+        seekClockScale.setProgress(clockScale - 50);
+        textClockScaleVal.setText(clockScale + "%");
+
+        seekClockX.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int val = progress - 120;
+                updateClockXDisplay(val);
+                prefs.setClockX(widgetType, val);
+                refreshPreview();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+            }
+        });
+
+        seekClockY.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int val = progress - 80;
+                updateClockYDisplay(val);
+                prefs.setClockY(widgetType, val);
+                refreshPreview();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+            }
+        });
+
+        seekClockScale.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int val = progress + 50;
+                textClockScaleVal.setText(val + "%");
+                prefs.setClockScale(widgetType, val);
+                refreshPreview();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+            }
+        });
+
+        btnResetClockTransform.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prefs.resetClockTransform(widgetType);
+                int cx = prefs.getClockX(widgetType);
+                int cy = prefs.getClockY(widgetType);
+                int cs = prefs.getClockScale(widgetType);
+                seekClockX.setProgress(cx + 120);
+                updateClockXDisplay(cx);
+                seekClockY.setProgress(cy + 80);
+                updateClockYDisplay(cy);
+                seekClockScale.setProgress(cs - 50);
+                textClockScaleVal.setText(cs + "%");
+                updateClockFormatButton(prefs.isClock24Hour(widgetType));
+                refreshPreview();
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                Toast.makeText(WidgetConfigActivity.this, "Reset clock position & scale", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updateClockFormatButton(boolean is24h) {
+        if (btnToggleClockFormat != null) {
+            btnToggleClockFormat.setText(is24h ? "24-Hour Mode" : "12-Hour (AM/PM)");
+        }
+    }
+
+    private void updateClockXDisplay(int x) {
+        if (x == 0) {
+            textClockXVal.setText("0 dp (Center)");
+        } else if (x > 0) {
+            textClockXVal.setText("+" + x + " dp (Right)");
+        } else {
+            textClockXVal.setText(x + " dp (Left)");
+        }
+    }
+
+    private void updateClockYDisplay(int y) {
+        if (y == 0) {
+            textClockYVal.setText("0 dp (Center)");
+        } else if (y > 0) {
+            textClockYVal.setText("+" + y + " dp (Down)");
+        } else {
+            textClockYVal.setText(y + " dp (Up)");
+        }
     }
 
     private void initControls() {

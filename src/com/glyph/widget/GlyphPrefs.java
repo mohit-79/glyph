@@ -29,6 +29,10 @@ public class GlyphPrefs {
     public static final int DEFAULT_CALENDAR_X = 0;
     public static final int DEFAULT_CALENDAR_Y = 0;
     public static final int DEFAULT_CALENDAR_SCALE = 100;
+    public static final int DEFAULT_CLOCK_X = 0;
+    public static final int DEFAULT_CLOCK_Y = 0;
+    public static final int DEFAULT_CLOCK_SCALE = 100;
+    public static final boolean DEFAULT_CLOCK_24H = false;
 
     public static final int NO_OVERRIDE_COLOR = -1;
 
@@ -300,6 +304,49 @@ public class GlyphPrefs {
                 .putInt(widgetType + "_cal_x", DEFAULT_CALENDAR_X)
                 .putInt(widgetType + "_cal_y", DEFAULT_CALENDAR_Y)
                 .putInt(widgetType + "_cal_scale", DEFAULT_CALENDAR_SCALE)
+                .apply();
+    }
+
+    // --- Per-Widget Clock Position & Scale Transform ---
+
+    public int getClockX(String widgetType) {
+        return prefs.getInt(widgetType + "_clock_x", DEFAULT_CLOCK_X);
+    }
+
+    public void setClockX(String widgetType, int val) {
+        prefs.edit().putInt(widgetType + "_clock_x", val).apply();
+    }
+
+    public int getClockY(String widgetType) {
+        return prefs.getInt(widgetType + "_clock_y", DEFAULT_CLOCK_Y);
+    }
+
+    public void setClockY(String widgetType, int val) {
+        prefs.edit().putInt(widgetType + "_clock_y", val).apply();
+    }
+
+    public int getClockScale(String widgetType) {
+        return prefs.getInt(widgetType + "_clock_scale", DEFAULT_CLOCK_SCALE);
+    }
+
+    public void setClockScale(String widgetType, int val) {
+        prefs.edit().putInt(widgetType + "_clock_scale", val).apply();
+    }
+
+    public boolean isClock24Hour(String widgetType) {
+        return prefs.getBoolean(widgetType + "_clock_24h", DEFAULT_CLOCK_24H);
+    }
+
+    public void setClock24Hour(String widgetType, boolean is24h) {
+        prefs.edit().putBoolean(widgetType + "_clock_24h", is24h).apply();
+    }
+
+    public void resetClockTransform(String widgetType) {
+        prefs.edit()
+                .putInt(widgetType + "_clock_x", DEFAULT_CLOCK_X)
+                .putInt(widgetType + "_clock_y", DEFAULT_CLOCK_Y)
+                .putInt(widgetType + "_clock_scale", DEFAULT_CLOCK_SCALE)
+                .putBoolean(widgetType + "_clock_24h", DEFAULT_CLOCK_24H)
                 .apply();
     }
 

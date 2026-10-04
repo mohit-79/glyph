@@ -40,6 +40,7 @@ glyph/
         └── compositor/                  # Pure 2D Canvas rendering engine
             ├── WidgetCanvas.java        # High-DPI bitmap compositor and pill geometry engine
             ├── CalendarRenderer.java    # Dynamic live-date calendar with 2D transform matrix
+            ├── ClockRenderer.java       # Single-line live digital clock with 2D transform matrix
             ├── FastBlur.java            # Dual-pass optical StackBlur algorithm implementation
             └── WallpaperHelper.java     # System wallpaper sampler, gallery picker, and coordinate slicer
 ```
@@ -94,7 +95,19 @@ Draws an authentic, real-time monthly calendar directly onto the 2D canvas with 
 * In-app interactive style selector with previous/next quick-cycling buttons and live descriptions.
 * One-tap reset button to restore default positioning and scale.
 
-### 5. Two-Tone Calendar sRGB Gamut Customizer
+### 5. Live 2D Clock Engine (`ClockRenderer.java`)
+Renders a live digital clock directly onto the 2D canvas with sub-pixel alignment, single-line text measurement guarantee, and continuous 2D transform controls:
+* **Single-Line Guarantee**: Accurately computes horizontal text metrics (`Paint.measureText`) for digits, colon separator, and AM/PM tag, drawing them along a shared baseline to strictly avoid multi-line digit wrapping.
+* **12h / 24h Toggle**: In-studio button switching between 12-hour format (with capsule AM/PM badge) and 24-hour military format.
+* **Superscript AM/PM Capsule Badge**: In 12-hour mode, renders AM/PM indicator inside a stylish rounded capsule badge beside the minute digits.
+* **Continuous Transformations**:
+  * Horizontal Position (X): -120dp to +120dp
+  * Vertical Position (Y): -80dp to +80dp
+  * Clock Scale (Zoom): 50% to 250%
+* **One-Tap Reset**: Restores default clock coordinates and scale without affecting calendar transforms.
+* **Perpetual Minute Tick Sync**: Employs `AlarmManager.setExactAndAllowWhileIdle` (`ACTION_UPDATE_GLYPH`) to wake and tick widgets precisely on the minute rollover, combined with system broadcast listeners (`TIME_SET`, `TIMEZONE_CHANGED`, `DATE_CHANGED`, `BOOT_COMPLETED`).
+
+### 6. Two-Tone Calendar sRGB Gamut Customizer
 Provides independent full-spectrum color customization for the two functional calendar tones:
 * **Tone 1 (Primary Accent)**: Month/Year header, active day badge, capsule pill bounds, and progress gauge arcs.
 * **Tone 2 (Secondary Tone)**: Day-of-week headers, secondary date numerals, grid dividers, and dial tracks.
@@ -103,13 +116,13 @@ Provides independent full-spectrum color customization for the two functional ca
 * **8-Color Quick Palette**: Fast 1-tap presets for White, Slate, Charcoal, Red, Amber, Emerald, Cyan, and Violet.
 * **Selective Resets**: "Reset Active Tone" button and "Reset Both Tones" button to independently restore active theme defaults.
 
-### 6. Border Studio & Full sRGB Color Gamut Picker
+### 7. Border Studio & Full sRGB Color Gamut Picker
 * **Thickness Control**: Continuous slider from `0dp` (completely borderless) to `16dp` (ultra thick).
 * **Full sRGB Gamut**: Rainbow Hue spectrum bar (0 to 360 degrees), Saturation slider (0% to 100%), and Brightness/Value slider (0% to 100%) providing access to all 16.7 million colors.
 * **8-Color Quick Palette**: Quick swatches for White, Slate, Charcoal, Red, Amber, Emerald, Cyan, and Violet.
 * **Theme Default Reset**: Instant reset button reverting to the active theme's default border palette.
 
-### 7. Curated Theme Catalog (`GlyphTheme.java`)
+### 8. Curated Theme Catalog (`GlyphTheme.java`)
 Contains 27 curated themes with coordinated colors for backgrounds, borders, and typography:
 1. Obsidian Dark
 2. Porcelain Light
@@ -187,7 +200,7 @@ The output APK is compiled, dexed, aligned, and signed with `debug.keystore`, pr
 * [x] **Commit 8**: Dynamic 2D Calendar Foundation with Live Dates & Continuous (X, Y, Scale) Transforms
 * [x] **Commit 9**: Multiple Artistic Calendar Styles (11 Distinct Aesthetic Variants)
 * [x] **Commit 10**: Two-Tone Calendar sRGB Gamut Customizer
-* [ ] **Commit 11**: Movable & Resizable Test Clock Foundation
+* [x] **Commit 11**: Movable & Resizable Test Clock Foundation
 * [ ] **Commit 12**: Multiple Artistic Clock Styles (12 Distinct Aesthetic Variants)
 * [ ] **Commit 13**: Clock Two-Tone sRGB Gamut Customizer
 * [ ] **Commit 14**: In-App UI/UX Aesthetic Redesign

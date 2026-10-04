@@ -1,5 +1,6 @@
 package com.glyph.widget;
 
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -24,6 +25,19 @@ public class GlyphWidgetProvider extends AppWidgetProvider {
         for (int appWidgetId : appWidgetIds) {
             updateWidget(context, appWidgetManager, appWidgetId);
         }
+        scheduleNextMinuteAlarm(context);
+    }
+
+    @Override
+    public void onEnabled(Context context) {
+        super.onEnabled(context);
+        scheduleNextMinuteAlarm(context);
+    }
+
+    @Override
+    public void onDisabled(Context context) {
+        super.onDisabled(context);
+        cancelMinuteAlarm(context);
     }
 
     @Override
@@ -36,7 +50,12 @@ public class GlyphWidgetProvider extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
-        if (ACTION_UPDATE_GLYPH.equals(intent.getAction())) {
+        String action = intent != null ? intent.getAction() : null;
+        if (ACTION_UPDATE_GLYPH.equals(action) ||
+                Intent.ACTION_TIME_CHANGED.equals(action) ||
+                Intent.ACTION_TIMEZONE_CHANGED.equals(action) ||
+                Intent.ACTION_DATE_CHANGED.equals(action) ||
+                Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             updateAllWidgets(context);
         }
     }
@@ -84,6 +103,39 @@ public class GlyphWidgetProvider extends AppWidgetProvider {
             for (int id : ids) {
                 updateWidget(context, manager, id);
             }
+            scheduleNextMinuteAlarm(context);
         }
+    }
+
+    public static void scheduleNextMinuteAlarm(Context context) {
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (am == null) return;
+        Intent intent = new Intent(context, GlyphWidgetProvider.class);
+        intent.setAction(ACTION_UPDATE_GLYPH);
+        PendingIntent pi = PendingIntent.getBroadcast(
+                context, 999, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | (android.os.Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0)
+        );
+        long now = System.currentTimeMillis();
+        long nextMinute = now + (60000 - (now % 60000));
+        if (android.os.Build.VERSION.SDK_INT >= 23) {
+            am.setExactAndAllowWhileIdle(AlarmManager.RTC, nextMinute, pi);
+        } else if (android.os.Build.VERSION.SDK_INT >= 19) {
+            am.setExact(AlarmManager.RTC, nextMinute, pi);
+        } else {
+            am.set(AlarmManager.RTC, nextMinute, pi);
+        }
+    }
+
+    public static void cancelMinuteAlarm(Context context) {
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (am == null) return;
+        Intent intent = new Intent(context, GlyphWidgetProvider.class);
+        intent.setAction(ACTION_UPDATE_GLYPH);
+        PendingIntent pi = PendingIntent.getBroadcast(
+                context, 999, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | (android.os.Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0)
+        );
+        am.cancel(pi);
     }
 }

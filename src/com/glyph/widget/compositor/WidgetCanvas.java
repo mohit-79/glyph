@@ -140,7 +140,22 @@ public class WidgetCanvas {
             canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, borderPaint);
         }
 
-        // 1. Draw Movable & Resizable Calendar Element
+        // 1. Draw Movable & Resizable Clock Element
+        int clockX = prefs.getClockX(widgetType);
+        int clockY = prefs.getClockY(widgetType);
+        int clockScale = prefs.getClockScale(widgetType);
+        int clockColor1 = prefs.getClockColor1(widgetType);
+        int clockColor2 = prefs.getClockColor2(widgetType);
+        boolean is24h = prefs.isClock24Hour(widgetType);
+
+        ClockRenderer.drawClock(
+                canvas, pillRect, scale,
+                clockX, clockY, clockScale,
+                clockColor1, clockColor2,
+                is24h
+        );
+
+        // 2. Draw Movable & Resizable Calendar Element
         int calX = prefs.getCalendarX(widgetType);
         int calY = prefs.getCalendarY(widgetType);
         int calScale = prefs.getCalendarScale(widgetType);
@@ -329,7 +344,22 @@ public class WidgetCanvas {
             canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, borderPaint);
         }
 
-        // 1. Draw Movable & Resizable Calendar Element
+        // 1. Draw Movable & Resizable Clock Element
+        int clockX = prefs.getClockX(widgetType);
+        int clockY = prefs.getClockY(widgetType);
+        int clockScale = prefs.getClockScale(widgetType);
+        int clockColor1 = prefs.getClockColor1(widgetType);
+        int clockColor2 = prefs.getClockColor2(widgetType);
+        boolean is24h = prefs.isClock24Hour(widgetType);
+
+        ClockRenderer.drawClock(
+                canvas, pillRect, scale,
+                clockX, clockY, clockScale,
+                clockColor1, clockColor2,
+                is24h
+        );
+
+        // 2. Draw Movable & Resizable Calendar Element
         int calX = prefs.getCalendarX(widgetType);
         int calY = prefs.getCalendarY(widgetType);
         int calScale = prefs.getCalendarScale(widgetType);
