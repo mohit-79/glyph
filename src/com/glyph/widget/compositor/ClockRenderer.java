@@ -16,6 +16,26 @@ import java.util.Locale;
  */
 public class ClockRenderer {
 
+    private static Typeface sBoldTypeface;
+
+    private static Typeface getSafeBoldTypeface() {
+        if (sBoldTypeface == null) {
+            try {
+                sBoldTypeface = Typeface.create("sans-serif", Typeface.BOLD);
+            } catch (Throwable t) {
+                try {
+                    sBoldTypeface = Typeface.defaultFromStyle(Typeface.BOLD);
+                } catch (Throwable t2) {
+                    sBoldTypeface = Typeface.DEFAULT_BOLD;
+                }
+            }
+            if (sBoldTypeface == null) {
+                sBoldTypeface = Typeface.DEFAULT_BOLD;
+            }
+        }
+        return sBoldTypeface;
+    }
+
     /**
      * Backward-compatible overload with 12-hour format default.
      */
@@ -45,83 +65,95 @@ public class ClockRenderer {
                                  boolean is24HourFormat) {
         if (canvas == null || pillRect == null) return;
 
-        float zoom = Math.max(0.4f, Math.min(3.0f, scalePercent / 100f));
-        float anchorX = pillRect.centerX() + (offsetXdp * scale);
-        float anchorY = pillRect.centerY() + (offsetYdp * scale);
+        try {
+            float zoom = Math.max(0.4f, Math.min(3.0f, scalePercent / 100f));
+            float anchorX = pillRect.centerX() + (offsetXdp * scale);
+            float anchorY = pillRect.centerY() + (offsetYdp * scale);
 
-        canvas.save();
-        canvas.translate(anchorX, anchorY);
-        canvas.scale(zoom, zoom);
+            canvas.save();
+            canvas.translate(anchorX, anchorY);
+            canvas.scale(zoom, zoom);
 
-        Calendar now = Calendar.getInstance();
-        int hour = is24HourFormat ? now.get(Calendar.HOUR_OF_DAY) : now.get(Calendar.HOUR);
-        if (!is24HourFormat && hour == 0) hour = 12;
-        int minute = now.get(Calendar.MINUTE);
-        String amPm = is24HourFormat ? "" : (now.get(Calendar.AM_PM) == Calendar.AM ? "AM" : "PM");
+            Calendar now = Calendar.getInstance();
+            int hour = is24HourFormat ? now.get(Calendar.HOUR_OF_DAY) : now.get(Calendar.HOUR);
+            if (!is24HourFormat && hour == 0) hour = 12;
+            int minute = now.get(Calendar.MINUTE);
+            String amPm = is24HourFormat ? "" : (now.get(Calendar.AM_PM) == Calendar.AM ? "AM" : "PM");
 
-        String hourStr = String.format(Locale.US, "%02d", hour);
-        String minStr = String.format(Locale.US, "%02d", minute);
+            String hourStr = String.format(Locale.US, "%02d", hour);
+            String minStr = String.format(Locale.US, "%02d", minute);
 
-        // Digits Paint (Primary Color)
-        Paint digitPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        digitPaint.setColor(primaryColor);
-        digitPaint.setTextSize(34f * scale);
-        digitPaint.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD));
+            Typeface boldTf = getSafeBoldTypeface();
 
-        // Colon Separator Paint (Secondary Accent Color)
-        Paint colonPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        colonPaint.setColor(secondaryColor);
-        colonPaint.setTextSize(32f * scale);
-        colonPaint.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD));
+            // Digits Paint (Primary Color)
+            Paint digitPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            digitPaint.setColor(primaryColor);
+            digitPaint.setTextSize(34f * scale);
+            if (boldTf != null) {
+                digitPaint.setTypeface(boldTf);
+            }
 
-        // AM/PM Tag Paint
-        Paint amPmPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        amPmPaint.setColor(secondaryColor);
-        amPmPaint.setTextSize(10f * scale);
-        amPmPaint.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD));
+            // Colon Separator Paint (Secondary Accent Color)
+            Paint colonPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            colonPaint.setColor(secondaryColor);
+            colonPaint.setTextSize(32f * scale);
+            if (boldTf != null) {
+                colonPaint.setTypeface(boldTf);
+            }
 
-        // Single-Line Metric Calculation: Measure exact character spans to center on anchor
-        float hourWidth = digitPaint.measureText(hourStr);
-        float colonWidth = colonPaint.measureText(" : ");
-        float minWidth = digitPaint.measureText(minStr);
-        float amPmWidth = amPm.isEmpty() ? 0f : amPmPaint.measureText(amPm) + (8f * scale);
+            // AM/PM Tag Paint
+            Paint amPmPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            amPmPaint.setColor(secondaryColor);
+            amPmPaint.setTextSize(10f * scale);
+            if (boldTf != null) {
+                amPmPaint.setTypeface(boldTf);
+            }
 
-        float totalClockWidth = hourWidth + colonWidth + minWidth + amPmWidth;
-        float startX = -totalClockWidth / 2f;
-        float baselineY = 11f * scale;
+            // Single-Line Metric Calculation: Measure exact character spans to center on anchor
+            float hourWidth = digitPaint.measureText(hourStr);
+            float colonWidth = colonPaint.measureText(" : ");
+            float minWidth = digitPaint.measureText(minStr);
+            float amPmWidth = amPm.isEmpty() ? 0f : amPmPaint.measureText(amPm) + (8f * scale);
 
-        // 1. Draw Hour Digits
-        canvas.drawText(hourStr, startX, baselineY, digitPaint);
-        float cursorX = startX + hourWidth;
+            float totalClockWidth = hourWidth + colonWidth + minWidth + amPmWidth;
+            float startX = -totalClockWidth / 2f;
+            float baselineY = 11f * scale;
 
-        // 2. Draw Colon Separator
-        canvas.drawText(" : ", cursorX, baselineY - (1.5f * scale), colonPaint);
-        cursorX += colonWidth;
+            // 1. Draw Hour Digits
+            canvas.drawText(hourStr, startX, baselineY, digitPaint);
+            float cursorX = startX + hourWidth;
 
-        // 3. Draw Minute Digits
-        canvas.drawText(minStr, cursorX, baselineY, digitPaint);
-        cursorX += minWidth;
+            // 2. Draw Colon Separator
+            canvas.drawText(" : ", cursorX, baselineY - (1.5f * scale), colonPaint);
+            cursorX += colonWidth;
 
-        // 4. Draw AM / PM Pill Badge
-        if (!amPm.isEmpty()) {
-            float tagX = cursorX + (6f * scale);
-            float tagY = baselineY - (12f * scale);
+            // 3. Draw Minute Digits
+            canvas.drawText(minStr, cursorX, baselineY, digitPaint);
+            cursorX += minWidth;
 
-            RectF amPmPill = new RectF(
-                    tagX - (3f * scale),
-                    tagY - (10.5f * scale),
-                    tagX + amPmPaint.measureText(amPm) + (3f * scale),
-                    tagY + (3f * scale)
-            );
+            // 4. Draw AM / PM Pill Badge
+            if (!amPm.isEmpty()) {
+                float tagX = cursorX + (6f * scale);
+                float tagY = baselineY - (12f * scale);
 
-            Paint tagBg = new Paint(Paint.ANTI_ALIAS_FLAG);
-            tagBg.setStyle(Paint.Style.FILL);
-            tagBg.setColor(Color.argb(38, Color.red(secondaryColor), Color.green(secondaryColor), Color.blue(secondaryColor)));
-            canvas.drawRoundRect(amPmPill, 3.5f * scale, 3.5f * scale, tagBg);
+                RectF amPmPill = new RectF(
+                        tagX - (3f * scale),
+                        tagY - (10.5f * scale),
+                        tagX + amPmPaint.measureText(amPm) + (3f * scale),
+                        tagY + (3f * scale)
+                );
 
-            canvas.drawText(amPm, tagX, tagY, amPmPaint);
+                Paint tagBg = new Paint(Paint.ANTI_ALIAS_FLAG);
+                tagBg.setStyle(Paint.Style.FILL);
+                tagBg.setColor(Color.argb(38, Color.red(secondaryColor), Color.green(secondaryColor), Color.blue(secondaryColor)));
+                canvas.drawRoundRect(amPmPill, 3.5f * scale, 3.5f * scale, tagBg);
+
+                canvas.drawText(amPm, tagX, tagY, amPmPaint);
+            }
+
+            canvas.restore();
+        } catch (Throwable t) {
+            android.util.Log.e("ClockRenderer", "Failed to render clock", t);
         }
-
-        canvas.restore();
     }
 }

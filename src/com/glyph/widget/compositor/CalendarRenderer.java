@@ -894,7 +894,7 @@ public class CalendarRenderer {
 
         // Header
         Paint headerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        headerPaint.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD));
+        headerPaint.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
         headerPaint.setColor(primaryColor);
         headerPaint.setTextSize(13f * scale);
         headerPaint.setTextAlign(Paint.Align.CENTER);
@@ -902,7 +902,7 @@ public class CalendarRenderer {
 
         // Day Headers
         Paint dowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        dowPaint.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD));
+        dowPaint.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
         dowPaint.setTextSize(9.5f * scale);
         dowPaint.setTextAlign(Paint.Align.CENTER);
 
@@ -917,7 +917,7 @@ public class CalendarRenderer {
 
         // Date Numbers
         Paint dayPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        dayPaint.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL));
+        dayPaint.setTypeface(Typeface.create("sans-serif", Typeface.NORMAL));
         dayPaint.setTextSize(10f * scale);
         dayPaint.setTextAlign(Paint.Align.CENTER);
 
@@ -935,13 +935,13 @@ public class CalendarRenderer {
             if (day == currentDay) {
                 canvas.drawCircle(cx, cy - (3.5f * scale), 7.5f * scale, todayBadge);
                 dayPaint.setColor(getContrastColor(primaryColor));
-                dayPaint.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD));
+                dayPaint.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
             } else if (col == 0 || col == 6) {
                 dayPaint.setColor(primaryColor);
-                dayPaint.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL));
+                dayPaint.setTypeface(Typeface.create("sans-serif", Typeface.NORMAL));
             } else {
                 dayPaint.setColor(secondaryColor);
-                dayPaint.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL));
+                dayPaint.setTypeface(Typeface.create("sans-serif", Typeface.NORMAL));
             }
             canvas.drawText(String.valueOf(day), cx, cy, dayPaint);
         }

@@ -307,7 +307,7 @@ public class WidgetConfigActivity extends Activity {
                 updateBorderCustomizerUI();
                 updateCalendarColorCustomizerUI();
                 refreshPreview();
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
             }
 
             @Override
@@ -386,7 +386,7 @@ public class WidgetConfigActivity extends Activity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
             }
         });
 
@@ -408,7 +408,7 @@ public class WidgetConfigActivity extends Activity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
             }
         });
 
@@ -429,7 +429,7 @@ public class WidgetConfigActivity extends Activity {
                 if (prefs.getWallpaperPosition(widgetType) != position) {
                     prefs.setWallpaperPosition(widgetType, position);
                     refreshPreview();
-                    GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                    safeUpdateWidgets();
                 }
             }
 
@@ -486,7 +486,7 @@ public class WidgetConfigActivity extends Activity {
         if (success) {
             updateWallpaperStatus();
             refreshPreview();
-            GlyphWidgetProvider.updateAllWidgets(this);
+            safeUpdateWidgets();
             Toast.makeText(this, "Wallpaper synced successfully", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Could not auto-detect system wallpaper. Tap 'Pick from Gallery' to select it.", Toast.LENGTH_LONG).show();
@@ -514,7 +514,7 @@ public class WidgetConfigActivity extends Activity {
             if (success) {
                 updateWallpaperStatus();
                 refreshPreview();
-                GlyphWidgetProvider.updateAllWidgets(this);
+                safeUpdateWidgets();
                 Toast.makeText(this, "Wallpaper loaded successfully", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "Failed to load wallpaper image", Toast.LENGTH_SHORT).show();
@@ -541,7 +541,7 @@ public class WidgetConfigActivity extends Activity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
             }
         });
 
@@ -593,7 +593,7 @@ public class WidgetConfigActivity extends Activity {
                     updateBorderCustomizerUI();
                     updateThemeSpecsDisplay(prefs.getTheme(widgetType));
                     refreshPreview();
-                    GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                    safeUpdateWidgets();
                 }
             });
 
@@ -627,7 +627,7 @@ public class WidgetConfigActivity extends Activity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
             }
         };
 
@@ -642,7 +642,7 @@ public class WidgetConfigActivity extends Activity {
                 updateBorderCustomizerUI();
                 updateThemeSpecsDisplay(prefs.getTheme(widgetType));
                 refreshPreview();
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
                 Toast.makeText(WidgetConfigActivity.this, "Reset border color to theme default", Toast.LENGTH_SHORT).show();
             }
         });
@@ -728,7 +728,7 @@ public class WidgetConfigActivity extends Activity {
                     prefs.setCalendarStyle(widgetType, position);
                     updateCalendarStyleDisplay(position);
                     refreshPreview();
-                    GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                    safeUpdateWidgets();
                 }
             }
 
@@ -782,7 +782,7 @@ public class WidgetConfigActivity extends Activity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
             }
         });
 
@@ -800,7 +800,7 @@ public class WidgetConfigActivity extends Activity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
             }
         });
 
@@ -818,7 +818,7 @@ public class WidgetConfigActivity extends Activity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
             }
         });
 
@@ -836,7 +836,7 @@ public class WidgetConfigActivity extends Activity {
                 seekCalScale.setProgress(calScale - 50);
                 textCalScaleVal.setText(calScale + "%");
                 refreshPreview();
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
                 Toast.makeText(WidgetConfigActivity.this, "Reset calendar position & scale", Toast.LENGTH_SHORT).show();
             }
         });
@@ -944,7 +944,7 @@ public class WidgetConfigActivity extends Activity {
                     }
                     updateCalendarColorCustomizerUI();
                     refreshPreview();
-                    GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                    safeUpdateWidgets();
                 }
             });
 
@@ -982,7 +982,7 @@ public class WidgetConfigActivity extends Activity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
             }
         };
 
@@ -1002,7 +1002,7 @@ public class WidgetConfigActivity extends Activity {
                 }
                 updateCalendarColorCustomizerUI();
                 refreshPreview();
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
             }
         });
 
@@ -1012,7 +1012,7 @@ public class WidgetConfigActivity extends Activity {
                 prefs.resetCalendarColors(widgetType);
                 updateCalendarColorCustomizerUI();
                 refreshPreview();
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
                 Toast.makeText(WidgetConfigActivity.this, "Reset both calendar colors to theme default", Toast.LENGTH_SHORT).show();
             }
         });
@@ -1160,7 +1160,7 @@ public class WidgetConfigActivity extends Activity {
                 prefs.setClock24Hour(widgetType, next);
                 updateClockFormatButton(next);
                 refreshPreview();
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
             }
         });
 
@@ -1187,7 +1187,7 @@ public class WidgetConfigActivity extends Activity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
             }
         });
 
@@ -1205,7 +1205,7 @@ public class WidgetConfigActivity extends Activity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
             }
         });
 
@@ -1223,7 +1223,7 @@ public class WidgetConfigActivity extends Activity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
             }
         });
 
@@ -1242,7 +1242,7 @@ public class WidgetConfigActivity extends Activity {
                 textClockScaleVal.setText(cs + "%");
                 updateClockFormatButton(prefs.isClock24Hour(widgetType));
                 refreshPreview();
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
                 Toast.makeText(WidgetConfigActivity.this, "Reset clock position & scale", Toast.LENGTH_SHORT).show();
             }
         });
@@ -1331,7 +1331,7 @@ public class WidgetConfigActivity extends Activity {
                 prefs.resetMargins(widgetType);
                 initControls();
                 refreshPreview();
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
                 Toast.makeText(WidgetConfigActivity.this, "Reset margins for " + textConfigWidgetTitle.getText(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -1339,7 +1339,7 @@ public class WidgetConfigActivity extends Activity {
         btnApplyWidget.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
                 Toast.makeText(WidgetConfigActivity.this, "Applied to " + textConfigWidgetTitle.getText() + " Widget", Toast.LENGTH_SHORT).show();
             }
         });
@@ -1347,6 +1347,14 @@ public class WidgetConfigActivity extends Activity {
 
     private interface ValueSetter {
         void set(int val);
+    }
+
+    private void safeUpdateWidgets() {
+        try {
+            GlyphWidgetProvider.updateAllWidgets(this);
+        } catch (Throwable t) {
+            android.util.Log.e("WidgetConfigActivity", "Safe widget update failed", t);
+        }
     }
 
     private void setupSeekBar(SeekBar seekBar, final TextView display, final ValueSetter setter) {
@@ -1363,13 +1371,19 @@ public class WidgetConfigActivity extends Activity {
 
             @Override
             public void onStopTrackingTouch(SeekBar sb) {
-                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                safeUpdateWidgets();
             }
         });
     }
 
     private void refreshPreview() {
-        Bitmap previewBitmap = WidgetCanvas.renderPreview(this, 720, 360, prefs, widgetType);
-        previewCanvas.setImageBitmap(previewBitmap);
+        try {
+            Bitmap previewBitmap = WidgetCanvas.renderPreview(this, 720, 360, prefs, widgetType);
+            if (previewBitmap != null && previewCanvas != null) {
+                previewCanvas.setImageBitmap(previewBitmap);
+            }
+        } catch (Throwable t) {
+            android.util.Log.e("WidgetConfigActivity", "Preview render error", t);
+        }
     }
 }

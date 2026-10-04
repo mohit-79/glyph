@@ -141,32 +141,40 @@ public class WidgetCanvas {
         }
 
         // 1. Draw Movable & Resizable Clock Element
-        int clockX = prefs.getClockX(widgetType);
-        int clockY = prefs.getClockY(widgetType);
-        int clockScale = prefs.getClockScale(widgetType);
-        int clockColor1 = prefs.getClockColor1(widgetType);
-        int clockColor2 = prefs.getClockColor2(widgetType);
-        boolean is24h = prefs.isClock24Hour(widgetType);
+        try {
+            int clockX = prefs.getClockX(widgetType);
+            int clockY = prefs.getClockY(widgetType);
+            int clockScale = prefs.getClockScale(widgetType);
+            int clockColor1 = prefs.getClockColor1(widgetType);
+            int clockColor2 = prefs.getClockColor2(widgetType);
+            boolean is24h = prefs.isClock24Hour(widgetType);
 
-        ClockRenderer.drawClock(
-                canvas, pillRect, scale,
-                clockX, clockY, clockScale,
-                clockColor1, clockColor2,
-                is24h
-        );
+            ClockRenderer.drawClock(
+                    canvas, pillRect, scale,
+                    clockX, clockY, clockScale,
+                    clockColor1, clockColor2,
+                    is24h
+            );
+        } catch (Throwable t) {
+            android.util.Log.e("WidgetCanvas", "Error rendering clock on widget", t);
+        }
 
         // 2. Draw Movable & Resizable Calendar Element
-        int calX = prefs.getCalendarX(widgetType);
-        int calY = prefs.getCalendarY(widgetType);
-        int calScale = prefs.getCalendarScale(widgetType);
-        int calStyle = prefs.getCalendarStyle(widgetType);
+        try {
+            int calX = prefs.getCalendarX(widgetType);
+            int calY = prefs.getCalendarY(widgetType);
+            int calScale = prefs.getCalendarScale(widgetType);
+            int calStyle = prefs.getCalendarStyle(widgetType);
 
-        CalendarRenderer.drawCalendar(
-                canvas, pillRect, scale,
-                calX, calY, calScale,
-                calColor1, calColor2,
-                calStyle
-        );
+            CalendarRenderer.drawCalendar(
+                    canvas, pillRect, scale,
+                    calX, calY, calScale,
+                    calColor1, calColor2,
+                    calStyle
+            );
+        } catch (Throwable t) {
+            android.util.Log.e("WidgetCanvas", "Error rendering calendar on widget", t);
+        }
 
         return bitmap;
     }
@@ -345,32 +353,40 @@ public class WidgetCanvas {
         }
 
         // 1. Draw Movable & Resizable Clock Element
-        int clockX = prefs.getClockX(widgetType);
-        int clockY = prefs.getClockY(widgetType);
-        int clockScale = prefs.getClockScale(widgetType);
-        int clockColor1 = prefs.getClockColor1(widgetType);
-        int clockColor2 = prefs.getClockColor2(widgetType);
-        boolean is24h = prefs.isClock24Hour(widgetType);
+        try {
+            int clockX = prefs.getClockX(widgetType);
+            int clockY = prefs.getClockY(widgetType);
+            int clockScale = prefs.getClockScale(widgetType);
+            int clockColor1 = prefs.getClockColor1(widgetType);
+            int clockColor2 = prefs.getClockColor2(widgetType);
+            boolean is24h = prefs.isClock24Hour(widgetType);
 
-        ClockRenderer.drawClock(
-                canvas, pillRect, scale,
-                clockX, clockY, clockScale,
-                clockColor1, clockColor2,
-                is24h
-        );
+            ClockRenderer.drawClock(
+                    canvas, pillRect, scale,
+                    clockX, clockY, clockScale,
+                    clockColor1, clockColor2,
+                    is24h
+            );
+        } catch (Throwable t) {
+            android.util.Log.e("WidgetCanvas", "Error rendering clock on preview", t);
+        }
 
         // 2. Draw Movable & Resizable Calendar Element
-        int calX = prefs.getCalendarX(widgetType);
-        int calY = prefs.getCalendarY(widgetType);
-        int calScale = prefs.getCalendarScale(widgetType);
-        int calStyle = prefs.getCalendarStyle(widgetType);
+        try {
+            int calX = prefs.getCalendarX(widgetType);
+            int calY = prefs.getCalendarY(widgetType);
+            int calScale = prefs.getCalendarScale(widgetType);
+            int calStyle = prefs.getCalendarStyle(widgetType);
 
-        CalendarRenderer.drawCalendar(
-                canvas, pillRect, scale,
-                calX, calY, calScale,
-                calColor1, calColor2,
-                calStyle
-        );
+            CalendarRenderer.drawCalendar(
+                    canvas, pillRect, scale,
+                    calX, calY, calScale,
+                    calColor1, calColor2,
+                    calStyle
+            );
+        } catch (Throwable t) {
+            android.util.Log.e("WidgetCanvas", "Error rendering calendar on preview", t);
+        }
 
         return bitmap;
     }

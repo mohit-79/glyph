@@ -105,7 +105,8 @@ Renders a live digital clock directly onto the 2D canvas with sub-pixel alignmen
   * Vertical Position (Y): -80dp to +80dp
   * Clock Scale (Zoom): 50% to 250%
 * **One-Tap Reset**: Restores default clock coordinates and scale without affecting calendar transforms.
-* **Perpetual Minute Tick Sync**: Employs `AlarmManager.setExactAndAllowWhileIdle` (`ACTION_UPDATE_GLYPH`) to wake and tick widgets precisely on the minute rollover, combined with system broadcast listeners (`TIME_SET`, `TIMEZONE_CHANGED`, `DATE_CHANGED`, `BOOT_COMPLETED`).
+* **Perpetual Minute Tick Sync**: Employs `AlarmManager.setExactAndAllowWhileIdle` (`ACTION_UPDATE_GLYPH`) to wake and tick widgets precisely on the minute rollover, combined with system broadcast listeners (`TIME_SET`, `TIMEZONE_CHANGED`, `DATE_CHANGED`, `BOOT_COMPLETED`), reflection-based API 31+ permission checks, and inexact fallback.
+* **Crash Resilience & Defensive Guards**: Safe cached Typeface resolution avoiding null font metrics across custom ROMs, wrapped canvas drawing routines, and guarded widget update broadcasts ensuring the customizer never crashes or restarts during slider manipulation.
 
 ### 6. Two-Tone Calendar sRGB Gamut Customizer
 Provides independent full-spectrum color customization for the two functional calendar tones:

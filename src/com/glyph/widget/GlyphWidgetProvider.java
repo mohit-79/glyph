@@ -64,78 +64,124 @@ public class GlyphWidgetProvider extends AppWidgetProvider {
      * Renders and updates a specific Clock & Calendar widget instance using its isolated preferences.
      */
     public static void updateWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_clock_calendar);
+        if (context == null || appWidgetManager == null) return;
+        try {
+            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_clock_calendar);
 
-        // PendingIntent to launch WidgetConfigActivity directly into this widget's isolated settings
-        Intent clickIntent = new Intent(context, WidgetConfigActivity.class);
-        clickIntent.putExtra(WidgetConfigActivity.EXTRA_WIDGET_TYPE, GlyphPrefs.WIDGET_CLOCK_CALENDAR);
-        clickIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                context, appWidgetId, clickIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT | (android.os.Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0)
-        );
-        views.setOnClickPendingIntent(R.id.widget_root, pendingIntent);
+            // PendingIntent to launch WidgetConfigActivity directly into this widget's isolated settings
+            Intent clickIntent = new Intent(context, WidgetConfigActivity.class);
+            clickIntent.putExtra(WidgetConfigActivity.EXTRA_WIDGET_TYPE, GlyphPrefs.WIDGET_CLOCK_CALENDAR);
+            clickIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            PendingIntent pendingIntent = PendingIntent.getActivity(
+                    context, appWidgetId, clickIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | (android.os.Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0)
+            );
+            views.setOnClickPendingIntent(R.id.widget_root, pendingIntent);
 
-        // Query launcher options to get current cell dimensions
-        Bundle options = appWidgetManager.getAppWidgetOptions(appWidgetId);
-        int minWidthDp = (options != null) ? options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 250) : 250;
-        int minHeightDp = (options != null) ? options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110) : 110;
+            // Query launcher options to get current cell dimensions
+            Bundle options = appWidgetManager.getAppWidgetOptions(appWidgetId);
+            int minWidthDp = (options != null) ? options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 250) : 250;
+            int minHeightDp = (options != null) ? options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110) : 110;
 
-        // Render at 2.5x density for ultra-sharp canvas reproduction
-        int targetWidth = Math.max((int) (minWidthDp * 2.5f), 720);
-        int targetHeight = Math.max((int) (minHeightDp * 2.5f), 320);
+            // Render at 2.5x density for ultra-sharp canvas reproduction
+            int targetWidth = Math.max((int) (minWidthDp * 2.5f), 720);
+            int targetHeight = Math.max((int) (minHeightDp * 2.5f), 320);
 
-        GlyphPrefs prefs = new GlyphPrefs(context);
-        Bitmap bitmap = WidgetCanvas.renderWidget(context, targetWidth, targetHeight, prefs, GlyphPrefs.WIDGET_CLOCK_CALENDAR);
+            GlyphPrefs prefs = new GlyphPrefs(context);
+            Bitmap bitmap = WidgetCanvas.renderWidget(context, targetWidth, targetHeight, prefs, GlyphPrefs.WIDGET_CLOCK_CALENDAR);
 
-        views.setImageViewBitmap(R.id.widget_canvas_view, bitmap);
-        appWidgetManager.updateAppWidget(appWidgetId, views);
+            if (bitmap != null) {
+                views.setImageViewBitmap(R.id.widget_canvas_view, bitmap);
+                appWidgetManager.updateAppWidget(appWidgetId, views);
+            }
+        } catch (Throwable t) {
+            android.util.Log.e("GlyphWidgetProvider", "Failed to update widget " + appWidgetId, t);
+        }
     }
 
     /**
      * Broadcasts refresh to all active placed widget instances.
      */
     public static void updateAllWidgets(Context context) {
-        AppWidgetManager manager = AppWidgetManager.getInstance(context);
-        ComponentName component = new ComponentName(context, GlyphWidgetProvider.class);
-        int[] ids = manager.getAppWidgetIds(component);
-        if (ids != null && ids.length > 0) {
-            for (int id : ids) {
-                updateWidget(context, manager, id);
+        if (context == null) return;
+        try {
+            AppWidgetManager manager = AppWidgetManager.getInstance(context);
+            if (manager == null) return;
+            ComponentName component = new ComponentName(context, GlyphWidgetProvider.class);
+            int[] ids = manager.getAppWidgetIds(component);
+            if (ids != null && ids.length > 0) {
+                for (int id : ids) {
+                    try {
+                        updateWidget(context, manager, id);
+                    } catch (Throwable t) {
+                        android.util.Log.e("GlyphWidgetProvider", "Error updating widget instance", t);
+                    }
+                }
+                scheduleNextMinuteAlarm(context);
             }
-            scheduleNextMinuteAlarm(context);
+        } catch (Throwable t) {
+            android.util.Log.e("GlyphWidgetProvider", "Failed to update all widgets", t);
         }
     }
 
+    private static boolean canScheduleExactAlarms(AlarmManager am) {
+        if (android.os.Build.VERSION.SDK_INT >= 31 && am != null) {
+            try {
+                java.lang.reflect.Method method = AlarmManager.class.getMethod("canScheduleExactAlarms");
+                Object result = method.invoke(am);
+                if (result instanceof Boolean) {
+                    return (Boolean) result;
+                }
+            } catch (Throwable ignored) {}
+        }
+        return android.os.Build.VERSION.SDK_INT < 31;
+    }
+
     public static void scheduleNextMinuteAlarm(Context context) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (am == null) return;
-        Intent intent = new Intent(context, GlyphWidgetProvider.class);
-        intent.setAction(ACTION_UPDATE_GLYPH);
-        PendingIntent pi = PendingIntent.getBroadcast(
-                context, 999, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | (android.os.Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0)
-        );
-        long now = System.currentTimeMillis();
-        long nextMinute = now + (60000 - (now % 60000));
-        if (android.os.Build.VERSION.SDK_INT >= 23) {
-            am.setExactAndAllowWhileIdle(AlarmManager.RTC, nextMinute, pi);
-        } else if (android.os.Build.VERSION.SDK_INT >= 19) {
-            am.setExact(AlarmManager.RTC, nextMinute, pi);
-        } else {
-            am.set(AlarmManager.RTC, nextMinute, pi);
+        if (context == null) return;
+        try {
+            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            if (am == null) return;
+            Intent intent = new Intent(context, GlyphWidgetProvider.class);
+            intent.setAction(ACTION_UPDATE_GLYPH);
+            PendingIntent pi = PendingIntent.getBroadcast(
+                    context, 999, intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | (android.os.Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0)
+            );
+            long now = System.currentTimeMillis();
+            long nextMinute = now + (60000 - (now % 60000));
+            if (android.os.Build.VERSION.SDK_INT >= 31) {
+                if (canScheduleExactAlarms(am)) {
+                    am.setExactAndAllowWhileIdle(AlarmManager.RTC, nextMinute, pi);
+                } else {
+                    am.set(AlarmManager.RTC, nextMinute, pi);
+                }
+            } else if (android.os.Build.VERSION.SDK_INT >= 23) {
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC, nextMinute, pi);
+            } else if (android.os.Build.VERSION.SDK_INT >= 19) {
+                am.setExact(AlarmManager.RTC, nextMinute, pi);
+            } else {
+                am.set(AlarmManager.RTC, nextMinute, pi);
+            }
+        } catch (Throwable t) {
+            android.util.Log.e("GlyphWidgetProvider", "Failed to schedule minute alarm", t);
         }
     }
 
     public static void cancelMinuteAlarm(Context context) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (am == null) return;
-        Intent intent = new Intent(context, GlyphWidgetProvider.class);
-        intent.setAction(ACTION_UPDATE_GLYPH);
-        PendingIntent pi = PendingIntent.getBroadcast(
-                context, 999, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | (android.os.Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0)
-        );
-        am.cancel(pi);
+        if (context == null) return;
+        try {
+            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            if (am == null) return;
+            Intent intent = new Intent(context, GlyphWidgetProvider.class);
+            intent.setAction(ACTION_UPDATE_GLYPH);
+            PendingIntent pi = PendingIntent.getBroadcast(
+                    context, 999, intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | (android.os.Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0)
+            );
+            am.cancel(pi);
+        } catch (Throwable t) {
+            android.util.Log.e("GlyphWidgetProvider", "Failed to cancel minute alarm", t);
+        }
     }
 }
