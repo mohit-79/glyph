@@ -127,7 +127,8 @@ flowchart LR
 * [x] **Commit 4**: Widget Background Pill & 4-Side Independent Margin Controls
 * [x] **Commit 4.1**: Multi-Widget Listing Hub & Per-Widget Isolated Margin Controls
 * [x] **Commit 5**: 25+ Background Color Themes (Dual Text & Border Defaults)
-* [x] **Commit 6**: 26th Theme - Frosted Glass & Intensity Slider *(Current)*
+* [x] **Commit 5.1**: Withering Glass & Transparent Widget with Optical Blur Intensity *(Current)*
+* [x] **Commit 6**: 26th Theme - Frosted Glass & Intensity Slider
 * [ ] **Commit 7**: Border Customizer (sRGB Color Gamut & 0 to Very Thick Slider)
 * [ ] **Commit 8**: Movable & Resizable Test Calendar Foundation
 * [ ] **Commit 9**: Multiple Artistic Calendar Styles (11 Reference Variants)

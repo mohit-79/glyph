@@ -69,7 +69,7 @@
 
         </LinearLayout>
 
-        <!-- Theme Selection Card (26 Presets) -->
+        <!-- Theme Selection Card (27 Presets) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -81,7 +81,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Color Themes (26 Presets)"
+                android:text="Color Themes (27 Presets)"
                 android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -90,7 +90,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="26th is Frosted Glass with dynamic intensity slider."
+                android:text="26: Withering Glass • 27: Frosted Glass (Transparent + Optical Blur)"
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
 
@@ -135,16 +135,36 @@
 
             </LinearLayout>
 
-            <!-- Quick Frosted Glass Shortcut Button -->
-            <Button
-                android:id="@+id/btn_select_frosted_glass"
+            <!-- Quick Glass Theme Buttons -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="42dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/bg_card"
-                android:text="Select 26. Frosted Glass"
-                android:textColor="@color/accent_blue"
-                android:textSize="13sp" />
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_select_withering_glass"
+                    android:layout_width="0dp"
+                    android:layout_height="42dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/bg_card"
+                    android:text="26. Withering Glass"
+                    android:textColor="@color/accent_blue"
+                    android:textSize="11sp" />
+
+                <Button
+                    android:id="@+id/btn_select_frosted_glass"
+                    android:layout_width="0dp"
+                    android:layout_height="42dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/bg_card"
+                    android:text="27. Frosted (Blur)"
+                    android:textColor="@color/accent_blue"
+                    android:textSize="11sp" />
+
+            </LinearLayout>
 
             <!-- Theme Color Specs Display -->
             <TextView
@@ -159,7 +179,7 @@
 
         </LinearLayout>
 
-        <!-- Frosted Glass Intensity Tuning Card -->
+        <!-- Glass & Blur Tuning Card -->
         <LinearLayout
             android:id="@+id/card_frosted_intensity"
             android:layout_width="match_parent"
@@ -169,9 +189,19 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Glass &amp; Optical Blur Tuning"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <!-- Blur Intensity (Radius) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -179,10 +209,43 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Frosting Intensity"
+                    android:text="Optical Blur Radius"
                     android:textColor="@color/text_primary"
-                    android:textSize="15sp"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/text_blur_intensity_val"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="24 px"
+                    android:textColor="@color/accent_blue"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/seek_blur_intensity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:max="50" />
+
+            <!-- Glass Translucency / Tint Intensity -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Translucency &amp; Frost Tint"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/text_frosting_intensity_val"
@@ -195,19 +258,11 @@
 
             </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Controls glass opacity, light diffusion, and specular rim brightness."
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
-
             <SeekBar
                 android:id="@+id/seek_frosting_intensity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="6dp"
                 android:max="100" />
 
         </LinearLayout>

@@ -141,13 +141,25 @@ public class GlyphTheme {
         THEMES.add(new ThemeDef("aurora", "Aurora Borealis",
                 "#071E22", "#1D7874", "#EEF5DB", "#679267", "#FFFFFF", "#00F5D4"));
 
-        // 26. Frosted Glass (Liquid Glass with Translucency & Specular Rim)
-        THEMES.add(new ThemeDef("frosted_glass", "Frosted Glass",
+        // 26. Withering Glass (Liquid Translucent Gradient Glass)
+        THEMES.add(new ThemeDef("withering_glass", "Withering Glass",
                 "#2AFFFFFF", "#66FFFFFF", "#FFFFFF", "#E2E8F0", "#FFFFFF", "#93C5FD"));
+
+        // 27. Frosted Glass (Transparent Widget with Optical Blur Intensity)
+        THEMES.add(new ThemeDef("frosted_glass", "Frosted Glass",
+                "#00000000", "#55FFFFFF", "#FFFFFF", "#F1F5F9", "#FFFFFF", "#38BDF8"));
+    }
+
+    public static boolean isWithering(String themeId) {
+        return "withering_glass".equals(themeId);
     }
 
     public static boolean isFrosted(String themeId) {
         return "frosted_glass".equals(themeId);
+    }
+
+    public static boolean isGlass(String themeId) {
+        return isWithering(themeId) || isFrosted(themeId);
     }
 
     public static List<ThemeDef> getAllThemes() {

@@ -18,7 +18,8 @@ import java.util.List;
 
 /**
  * WidgetConfigActivity provides the dedicated per-widget customizer window.
- * Supports 26 curated color themes, 4-side margin controls, and real-time previews.
+ * Supports 27 curated color themes, Withering Glass, Frosted Glass (with optical blur),
+ * 4-side margin controls, and real-time previews.
  */
 public class WidgetConfigActivity extends Activity {
 
@@ -34,10 +35,13 @@ public class WidgetConfigActivity extends Activity {
     private Spinner spinnerThemes;
     private Button btnPrevTheme;
     private Button btnNextTheme;
+    private Button btnSelectWitheringGlass;
     private Button btnSelectFrostedGlass;
     private TextView textThemeSpecs;
 
     private View cardFrostedIntensity;
+    private SeekBar seekBlurIntensity;
+    private TextView textBlurIntensityVal;
     private SeekBar seekFrostingIntensity;
     private TextView textFrostingIntensityVal;
 
@@ -71,7 +75,7 @@ public class WidgetConfigActivity extends Activity {
         prefs = new GlyphPrefs(this);
         bindViews();
         initThemes();
-        initFrostingControls();
+        initGlassControls();
         initControls();
         refreshPreview();
     }
@@ -84,10 +88,13 @@ public class WidgetConfigActivity extends Activity {
         spinnerThemes = (Spinner) findViewById(R.id.spinner_themes);
         btnPrevTheme = (Button) findViewById(R.id.btn_prev_theme);
         btnNextTheme = (Button) findViewById(R.id.btn_next_theme);
+        btnSelectWitheringGlass = (Button) findViewById(R.id.btn_select_withering_glass);
         btnSelectFrostedGlass = (Button) findViewById(R.id.btn_select_frosted_glass);
         textThemeSpecs = (TextView) findViewById(R.id.text_theme_specs);
 
         cardFrostedIntensity = findViewById(R.id.card_frosted_intensity);
+        seekBlurIntensity = (SeekBar) findViewById(R.id.seek_blur_intensity);
+        textBlurIntensityVal = (TextView) findViewById(R.id.text_blur_intensity_val);
         seekFrostingIntensity = (SeekBar) findViewById(R.id.seek_frosting_intensity);
         textFrostingIntensityVal = (TextView) findViewById(R.id.text_frosting_intensity_val);
 
@@ -137,7 +144,7 @@ public class WidgetConfigActivity extends Activity {
         int currentIdx = GlyphTheme.getThemeIndexById(prefs.getThemeId(widgetType));
         spinnerThemes.setSelection(currentIdx);
         updateThemeSpecsDisplay(themes.get(currentIdx));
-        updateFrostingCardVisibility(themes.get(currentIdx).id);
+        updateGlassCardVisibility(themes.get(currentIdx).id);
 
         spinnerThemes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -149,7 +156,7 @@ public class WidgetConfigActivity extends Activity {
                 GlyphTheme.ThemeDef selected = themes.get(position);
                 prefs.setThemeId(widgetType, selected.id);
                 updateThemeSpecsDisplay(selected);
-                updateFrostingCardVisibility(selected.id);
+                updateGlassCardVisibility(selected.id);
                 refreshPreview();
                 GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
             }
@@ -176,6 +183,14 @@ public class WidgetConfigActivity extends Activity {
             }
         });
 
+        btnSelectWitheringGlass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int witheringIdx = GlyphTheme.getThemeIndexById("withering_glass");
+                spinnerThemes.setSelection(witheringIdx);
+            }
+        });
+
         btnSelectFrostedGlass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -185,14 +200,36 @@ public class WidgetConfigActivity extends Activity {
         });
     }
 
-    private void updateFrostingCardVisibility(String themeId) {
-        boolean isFrosted = GlyphTheme.isFrosted(themeId);
-        // Dim or highlight frosting card based on active theme
-        cardFrostedIntensity.setAlpha(isFrosted ? 1.0f : 0.45f);
-        seekFrostingIntensity.setEnabled(isFrosted);
+    private void updateGlassCardVisibility(String themeId) {
+        boolean isGlass = GlyphTheme.isGlass(themeId);
+        cardFrostedIntensity.setAlpha(isGlass ? 1.0f : 0.45f);
+        seekBlurIntensity.setEnabled(GlyphTheme.isFrosted(themeId));
+        seekFrostingIntensity.setEnabled(isGlass);
     }
 
-    private void initFrostingControls() {
+    private void initGlassControls() {
+        int currentBlur = prefs.getBlurIntensity(widgetType);
+        seekBlurIntensity.setProgress(currentBlur);
+        textBlurIntensityVal.setText(currentBlur + " px");
+
+        seekBlurIntensity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int clamped = Math.max(1, progress);
+                textBlurIntensityVal.setText(clamped + " px");
+                prefs.setBlurIntensity(widgetType, clamped);
+                refreshPreview();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+            }
+        });
+
         int currentIntensity = prefs.getFrostingIntensity(widgetType);
         seekFrostingIntensity.setProgress(currentIntensity);
         textFrostingIntensityVal.setText(currentIntensity + " %");
@@ -200,7 +237,7 @@ public class WidgetConfigActivity extends Activity {
         seekFrostingIntensity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int clamped = Math.max(10, progress);
+                int clamped = Math.max(5, progress);
                 textFrostingIntensityVal.setText(clamped + " %");
                 prefs.setFrostingIntensity(widgetType, clamped);
                 refreshPreview();
@@ -223,8 +260,17 @@ public class WidgetConfigActivity extends Activity {
         int clockColor1 = prefs.getClockColor1(widgetType);
         int clockColor2 = prefs.getClockColor2(widgetType);
 
+        String bgDesc;
+        if (GlyphTheme.isFrosted(theme.id)) {
+            bgDesc = "Transparent + Optical Blur (" + prefs.getBlurIntensity(widgetType) + "px)";
+        } else if (GlyphTheme.isWithering(theme.id)) {
+            bgDesc = "Withering Liquid Glass (" + prefs.getFrostingIntensity(widgetType) + "%)";
+        } else {
+            bgDesc = String.format("#%06X", (0xFFFFFF & theme.backgroundColor));
+        }
+
         String specs = "Active Theme: " + theme.name + "\n"
-                + "• Background: " + (GlyphTheme.isFrosted(theme.id) ? "Frosted Glass Translucent" : String.format("#%06X", (0xFFFFFF & theme.backgroundColor))) + "\n"
+                + "• Background: " + bgDesc + "\n"
                 + "• Border (1): " + String.format("#%06X", (0xFFFFFF & borderColor)) + "\n"
                 + "• Calendar Colors (2): "
                 + String.format("#%06X", (0xFFFFFF & calColor1)) + " / "
