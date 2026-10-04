@@ -123,8 +123,8 @@ flowchart LR
 
 * [x] **Commit 1**: Architecture & File Structure README
 * [x] **Commit 2**: Basic Installable App & Permissions (`Glyph.apk` bundle)
-* [x] **Commit 3**: Multi-Widget Architecture Entry (Clock & Calendar Widget) *(Current)*
-* [ ] **Commit 4**: Widget Background Pill & 4-Side Independent Margin Controls
+* [x] **Commit 3**: Multi-Widget Architecture Entry (Clock & Calendar Widget)
+* [x] **Commit 4**: Widget Background Pill & 4-Side Independent Margin Controls *(Current)*
 * [ ] **Commit 5**: 25+ Background Color Themes (Dual Text & Border Defaults)
 * [ ] **Commit 6**: 26th Theme - Frosted Glass & Intensity Slider
 * [ ] **Commit 7**: Border Customizer (sRGB Color Gamut & 0 to Very Thick Slider)

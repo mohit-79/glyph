@@ -7,16 +7,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.RectF;
 import android.os.Bundle;
 import android.widget.RemoteViews;
+import com.glyph.widget.compositor.WidgetCanvas;
 
 /**
- * GlyphWidgetProvider manages the lifecycle, initial rendering, and updates
- * for the Clock & Calendar widget on the Android home screen launcher.
+ * GlyphWidgetProvider manages the lifecycle, dynamic resizing, and 2D Canvas
+ * rendering for the Clock & Calendar widget.
  */
 public class GlyphWidgetProvider extends AppWidgetProvider {
 
@@ -45,7 +42,7 @@ public class GlyphWidgetProvider extends AppWidgetProvider {
     }
 
     /**
-     * Updates an individual widget instance with a high-resolution 2D Canvas bitmap.
+     * Renders and updates a specific widget instance using the current user margins and dimensions.
      */
     public static void updateWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_clock_calendar);
@@ -59,49 +56,24 @@ public class GlyphWidgetProvider extends AppWidgetProvider {
         );
         views.setOnClickPendingIntent(R.id.widget_root, pendingIntent);
 
-        // Render clean initial placeholder bitmap using 2D Canvas
-        int width = 720;
-        int height = 360;
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
+        // Query launcher options to get current cell dimensions
+        Bundle options = appWidgetManager.getAppWidgetOptions(appWidgetId);
+        int minWidthDp = (options != null) ? options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 250) : 250;
+        int minHeightDp = (options != null) ? options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110) : 110;
 
-        // Background pill
-        Paint bgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        bgPaint.setColor(Color.parseColor("#12151C"));
-        bgPaint.setStyle(Paint.Style.FILL);
+        // Render at 2.5x density for ultra-sharp canvas reproduction
+        int targetWidth = Math.max((int) (minWidthDp * 2.5f), 720);
+        int targetHeight = Math.max((int) (minHeightDp * 2.5f), 320);
 
-        Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        borderPaint.setColor(Color.parseColor("#272E3B"));
-        borderPaint.setStyle(Paint.Style.STROKE);
-        borderPaint.setStrokeWidth(4f);
+        GlyphPrefs prefs = new GlyphPrefs(context);
+        Bitmap bitmap = WidgetCanvas.renderWidget(context, targetWidth, targetHeight, prefs);
 
-        RectF pillRect = new RectF(16f, 16f, width - 16f, height - 16f);
-        float radius = 54f;
-        canvas.drawRoundRect(pillRect, radius, radius, bgPaint);
-        canvas.drawRoundRect(pillRect, radius, radius, borderPaint);
-
-        // Center title & status
-        Paint titlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        titlePaint.setColor(Color.parseColor("#F8FAFC"));
-        titlePaint.setTextSize(44f);
-        titlePaint.setTextAlign(Paint.Align.CENTER);
-        titlePaint.setFakeBoldText(true);
-        canvas.drawText("GLYPH", width / 2f, (height / 2f) - 10f, titlePaint);
-
-        Paint subPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        subPaint.setColor(Color.parseColor("#3B82F6"));
-        subPaint.setTextSize(22f);
-        subPaint.setTextAlign(Paint.Align.CENTER);
-        canvas.drawText("Clock & Calendar Widget • Active", width / 2f, (height / 2f) + 36f, subPaint);
-
-        // Set rendered bitmap to RemoteViews
         views.setImageViewBitmap(R.id.widget_canvas_view, bitmap);
-
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
 
     /**
-     * Helper to broadcast refresh to all active placed widget instances.
+     * Broadcasts refresh to all active placed widget instances.
      */
     public static void updateAllWidgets(Context context) {
         AppWidgetManager manager = AppWidgetManager.getInstance(context);
