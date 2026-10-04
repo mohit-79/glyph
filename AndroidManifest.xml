@@ -29,6 +29,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".WidgetConfigActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:label="Widget Settings" />
+
         <!-- Clock & Calendar Widget Receiver -->
         <receiver
             android:name=".GlyphWidgetProvider"

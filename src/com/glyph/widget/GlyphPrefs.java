@@ -4,21 +4,18 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
- * GlyphPrefs manages persistent configuration for widget margins, dimensions,
- * themes, colors, and element coordinates.
+ * GlyphPrefs manages persistent configuration namespaced per widget type.
+ * Ensures each widget (Clock & Calendar, Weather, Music, etc.) controls
+ * its margins, themes, and dimensions completely independently.
  */
 public class GlyphPrefs {
 
     private static final String PREF_NAME = "glyph_widget_prefs";
 
-    // 4-side independent margin keys (in dp)
-    private static final String KEY_MARGIN_LEFT = "margin_left";
-    private static final String KEY_MARGIN_TOP = "margin_top";
-    private static final String KEY_MARGIN_RIGHT = "margin_right";
-    private static final String KEY_MARGIN_BOTTOM = "margin_bottom";
-    private static final String KEY_CORNER_RADIUS = "corner_radius";
+    // Known widget types
+    public static final String WIDGET_CLOCK_CALENDAR = "clock_calendar";
 
-    // Defaults
+    // Default values
     public static final int DEFAULT_MARGIN_LEFT = 16;
     public static final int DEFAULT_MARGIN_TOP = 16;
     public static final int DEFAULT_MARGIN_RIGHT = 16;
@@ -31,53 +28,73 @@ public class GlyphPrefs {
         this.prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
     }
 
-    public int getMarginLeft() {
-        return prefs.getInt(KEY_MARGIN_LEFT, DEFAULT_MARGIN_LEFT);
+    // --- Per-Widget Namespaced Margin Controls ---
+
+    public int getMarginLeft(String widgetType) {
+        return prefs.getInt(widgetType + "_margin_left", DEFAULT_MARGIN_LEFT);
     }
 
-    public void setMarginLeft(int value) {
-        prefs.edit().putInt(KEY_MARGIN_LEFT, value).apply();
+    public void setMarginLeft(String widgetType, int value) {
+        prefs.edit().putInt(widgetType + "_margin_left", value).apply();
     }
 
-    public int getMarginTop() {
-        return prefs.getInt(KEY_MARGIN_TOP, DEFAULT_MARGIN_TOP);
+    public int getMarginTop(String widgetType) {
+        return prefs.getInt(widgetType + "_margin_top", DEFAULT_MARGIN_TOP);
     }
 
-    public void setMarginTop(int value) {
-        prefs.edit().putInt(KEY_MARGIN_TOP, value).apply();
+    public void setMarginTop(String widgetType, int value) {
+        prefs.edit().putInt(widgetType + "_margin_top", value).apply();
     }
 
-    public int getMarginRight() {
-        return prefs.getInt(KEY_MARGIN_RIGHT, DEFAULT_MARGIN_RIGHT);
+    public int getMarginRight(String widgetType) {
+        return prefs.getInt(widgetType + "_margin_right", DEFAULT_MARGIN_RIGHT);
     }
 
-    public void setMarginRight(int value) {
-        prefs.edit().putInt(KEY_MARGIN_RIGHT, value).apply();
+    public void setMarginRight(String widgetType, int value) {
+        prefs.edit().putInt(widgetType + "_margin_right", value).apply();
     }
 
-    public int getMarginBottom() {
-        return prefs.getInt(KEY_MARGIN_BOTTOM, DEFAULT_MARGIN_BOTTOM);
+    public int getMarginBottom(String widgetType) {
+        return prefs.getInt(widgetType + "_margin_bottom", DEFAULT_MARGIN_BOTTOM);
     }
 
-    public void setMarginBottom(int value) {
-        prefs.edit().putInt(KEY_MARGIN_BOTTOM, value).apply();
+    public void setMarginBottom(String widgetType, int value) {
+        prefs.edit().putInt(widgetType + "_margin_bottom", value).apply();
     }
 
-    public int getCornerRadius() {
-        return prefs.getInt(KEY_CORNER_RADIUS, DEFAULT_CORNER_RADIUS);
+    public int getCornerRadius(String widgetType) {
+        return prefs.getInt(widgetType + "_corner_radius", DEFAULT_CORNER_RADIUS);
     }
 
-    public void setCornerRadius(int value) {
-        prefs.edit().putInt(KEY_CORNER_RADIUS, value).apply();
+    public void setCornerRadius(String widgetType, int value) {
+        prefs.edit().putInt(widgetType + "_corner_radius", value).apply();
     }
 
-    public void resetMargins() {
+    public void resetMargins(String widgetType) {
         prefs.edit()
-                .putInt(KEY_MARGIN_LEFT, DEFAULT_MARGIN_LEFT)
-                .putInt(KEY_MARGIN_TOP, DEFAULT_MARGIN_TOP)
-                .putInt(KEY_MARGIN_RIGHT, DEFAULT_MARGIN_RIGHT)
-                .putInt(KEY_MARGIN_BOTTOM, DEFAULT_MARGIN_BOTTOM)
-                .putInt(KEY_CORNER_RADIUS, DEFAULT_CORNER_RADIUS)
+                .putInt(widgetType + "_margin_left", DEFAULT_MARGIN_LEFT)
+                .putInt(widgetType + "_margin_top", DEFAULT_MARGIN_TOP)
+                .putInt(widgetType + "_margin_right", DEFAULT_MARGIN_RIGHT)
+                .putInt(widgetType + "_margin_bottom", DEFAULT_MARGIN_BOTTOM)
+                .putInt(widgetType + "_corner_radius", DEFAULT_CORNER_RADIUS)
                 .apply();
     }
+
+    // --- Backward Compatible Overloads (defaults to Clock & Calendar) ---
+    public int getMarginLeft() { return getMarginLeft(WIDGET_CLOCK_CALENDAR); }
+    public void setMarginLeft(int value) { setMarginLeft(WIDGET_CLOCK_CALENDAR, value); }
+
+    public int getMarginTop() { return getMarginTop(WIDGET_CLOCK_CALENDAR); }
+    public void setMarginTop(int value) { setMarginTop(WIDGET_CLOCK_CALENDAR, value); }
+
+    public int getMarginRight() { return getMarginRight(WIDGET_CLOCK_CALENDAR); }
+    public void setMarginRight(int value) { setMarginRight(WIDGET_CLOCK_CALENDAR, value); }
+
+    public int getMarginBottom() { return getMarginBottom(WIDGET_CLOCK_CALENDAR); }
+    public void setMarginBottom(int value) { setMarginBottom(WIDGET_CLOCK_CALENDAR, value); }
+
+    public int getCornerRadius() { return getCornerRadius(WIDGET_CLOCK_CALENDAR); }
+    public void setCornerRadius(int value) { setCornerRadius(WIDGET_CLOCK_CALENDAR, value); }
+
+    public void resetMargins() { resetMargins(WIDGET_CLOCK_CALENDAR); }
 }

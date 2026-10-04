@@ -42,16 +42,17 @@ public class GlyphWidgetProvider extends AppWidgetProvider {
     }
 
     /**
-     * Renders and updates a specific widget instance using the current user margins and dimensions.
+     * Renders and updates a specific Clock & Calendar widget instance using its isolated preferences.
      */
     public static void updateWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_clock_calendar);
 
-        // PendingIntent to launch MainActivity on tap
-        Intent clickIntent = new Intent(context, MainActivity.class);
+        // PendingIntent to launch WidgetConfigActivity directly into this widget's isolated settings
+        Intent clickIntent = new Intent(context, WidgetConfigActivity.class);
+        clickIntent.putExtra(WidgetConfigActivity.EXTRA_WIDGET_TYPE, GlyphPrefs.WIDGET_CLOCK_CALENDAR);
         clickIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(
-                context, 0, clickIntent,
+                context, appWidgetId, clickIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | (android.os.Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0)
         );
         views.setOnClickPendingIntent(R.id.widget_root, pendingIntent);
@@ -66,7 +67,7 @@ public class GlyphWidgetProvider extends AppWidgetProvider {
         int targetHeight = Math.max((int) (minHeightDp * 2.5f), 320);
 
         GlyphPrefs prefs = new GlyphPrefs(context);
-        Bitmap bitmap = WidgetCanvas.renderWidget(context, targetWidth, targetHeight, prefs);
+        Bitmap bitmap = WidgetCanvas.renderWidget(context, targetWidth, targetHeight, prefs, GlyphPrefs.WIDGET_CLOCK_CALENDAR);
 
         views.setImageViewBitmap(R.id.widget_canvas_view, bitmap);
         appWidgetManager.updateAppWidget(appWidgetId, views);

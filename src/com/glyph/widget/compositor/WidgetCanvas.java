@@ -10,15 +10,15 @@ import android.graphics.RectF;
 import com.glyph.widget.GlyphPrefs;
 
 /**
- * WidgetCanvas renders the 2D Canvas bitmap for both launcher RemoteViews
- * and in-app real-time previews, strictly enforcing 4-side unoccupied margins.
+ * WidgetCanvas renders 2D Canvas bitmaps for both launcher RemoteViews
+ * and in-app real-time previews, strictly enforcing per-widget unoccupied margins.
  */
 public class WidgetCanvas {
 
     /**
-     * Renders the production widget bitmap for the home screen launcher.
+     * Renders the production widget bitmap for the home screen launcher for a given widget type.
      */
-    public static Bitmap renderWidget(Context context, int width, int height, GlyphPrefs prefs) {
+    public static Bitmap renderWidget(Context context, int width, int height, GlyphPrefs prefs, String widgetType) {
         if (width <= 0) width = 720;
         if (height <= 0) height = 360;
 
@@ -28,11 +28,11 @@ public class WidgetCanvas {
         // Density scale factor for high-resolution rendering
         float scale = width / 360f;
 
-        float marginLeft = prefs.getMarginLeft() * scale;
-        float marginTop = prefs.getMarginTop() * scale;
-        float marginRight = prefs.getMarginRight() * scale;
-        float marginBottom = prefs.getMarginBottom() * scale;
-        float cornerRadius = prefs.getCornerRadius() * scale;
+        float marginLeft = prefs.getMarginLeft(widgetType) * scale;
+        float marginTop = prefs.getMarginTop(widgetType) * scale;
+        float marginRight = prefs.getMarginRight(widgetType) * scale;
+        float marginBottom = prefs.getMarginBottom(widgetType) * scale;
+        float cornerRadius = prefs.getCornerRadius(widgetType) * scale;
 
         // Bounding box for the inner pill based on 4-side margins
         float pillLeft = Math.max(0, marginLeft);
@@ -40,7 +40,6 @@ public class WidgetCanvas {
         float pillRight = Math.min(width, width - marginRight);
         float pillBottom = Math.min(height, height - marginBottom);
 
-        // Prevent negative or inverted dimensions
         if (pillRight <= pillLeft + 40f) {
             pillRight = pillLeft + 40f;
         }
@@ -79,20 +78,24 @@ public class WidgetCanvas {
 
         Paint subPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         subPaint.setColor(Color.parseColor("#3B82F6"));
-        subPaint.setTextSize(16f * scale);
+        subPaint.setTextSize(15f * scale);
         subPaint.setTextAlign(Paint.Align.CENTER);
-        canvas.drawText("Pill Margin: L" + prefs.getMarginLeft() + " T" + prefs.getMarginTop()
-                + " R" + prefs.getMarginRight() + " B" + prefs.getMarginBottom(),
+        canvas.drawText("Pill Margin: L" + prefs.getMarginLeft(widgetType) + " T" + prefs.getMarginTop(widgetType)
+                + " R" + prefs.getMarginRight(widgetType) + " B" + prefs.getMarginBottom(widgetType),
                 centerX, centerY + (24f * scale), subPaint);
 
         return bitmap;
     }
 
+    public static Bitmap renderWidget(Context context, int width, int height, GlyphPrefs prefs) {
+        return renderWidget(context, width, height, prefs, GlyphPrefs.WIDGET_CLOCK_CALENDAR);
+    }
+
     /**
      * Renders the interactive preview bitmap with a dashed bounding box
-     * to visualize the unoccupied launcher space in the app settings screen.
+     * to visualize the unoccupied launcher space for a given widget type.
      */
-    public static Bitmap renderPreview(int width, int height, GlyphPrefs prefs) {
+    public static Bitmap renderPreview(int width, int height, GlyphPrefs prefs, String widgetType) {
         if (width <= 0) width = 720;
         if (height <= 0) height = 360;
 
@@ -112,11 +115,11 @@ public class WidgetCanvas {
         canvas.drawRoundRect(cellRect, 16f * scale, 16f * scale, cellBoundaryPaint);
 
         // Inner pill bounds
-        float marginLeft = prefs.getMarginLeft() * scale;
-        float marginTop = prefs.getMarginTop() * scale;
-        float marginRight = prefs.getMarginRight() * scale;
-        float marginBottom = prefs.getMarginBottom() * scale;
-        float cornerRadius = prefs.getCornerRadius() * scale;
+        float marginLeft = prefs.getMarginLeft(widgetType) * scale;
+        float marginTop = prefs.getMarginTop(widgetType) * scale;
+        float marginRight = prefs.getMarginRight(widgetType) * scale;
+        float marginBottom = prefs.getMarginBottom(widgetType) * scale;
+        float cornerRadius = prefs.getCornerRadius(widgetType) * scale;
 
         float pillLeft = Math.max(0, marginLeft);
         float pillTop = Math.max(0, marginTop);
@@ -159,5 +162,9 @@ public class WidgetCanvas {
         canvas.drawText("Unoccupied Margin Tuner", centerX, centerY + (20f * scale), subPaint);
 
         return bitmap;
+    }
+
+    public static Bitmap renderPreview(int width, int height, GlyphPrefs prefs) {
+        return renderPreview(width, height, prefs, GlyphPrefs.WIDGET_CLOCK_CALENDAR);
     }
 }
