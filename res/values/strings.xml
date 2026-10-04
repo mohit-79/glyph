@@ -4,6 +4,10 @@
     <string name="app_tagline">Artistic Home Screen Widgets</string>
     <string name="status_system_ok">System Status: Active</string>
     <string name="status_permissions">Widget Permissions: Ready</string>
-    <string name="version_info">v1.0.0 (Commit 2 Foundation)</string>
+    <string name="version_info">v1.0.0 (Commit 3 Widget Entry)</string>
     <string name="build_summary">Pure 2D Canvas Engine Architecture</string>
+    <string name="widget_clock_calendar_name">Clock &amp; Calendar</string>
+    <string name="widget_clock_calendar_desc">Artistic resizable clock and calendar pill widget</string>
+    <string name="section_widgets">Available Widgets</string>
+    <string name="widget_active_status">Active on Home Screen</string>
 </resources>

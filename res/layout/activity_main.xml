@@ -1,112 +1,150 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_dark"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:background="@color/bg_dark">
 
-    <!-- Header -->
-    <TextView
-        android:id="@+id/text_app_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/app_name"
-        android:textColor="@color/text_primary"
-        android:textSize="32sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/text_app_tagline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="@string/app_tagline"
-        android:textColor="@color/text_secondary"
-        android:textSize="15sp" />
-
-    <TextView
-        android:id="@+id/text_version"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:text="@string/version_info"
-        android:textColor="@color/accent_blue"
-        android:textSize="12sp" />
-
-    <!-- Status Card -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:background="@drawable/bg_card"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="24dp">
 
+        <!-- Header -->
         <TextView
+            android:id="@+id/text_app_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="System Diagnostics"
+            android:layout_marginTop="20dp"
+            android:text="@string/app_name"
             android:textColor="@color/text_primary"
-            android:textSize="17sp"
+            android:textSize="32sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/text_status_permissions"
+            android:id="@+id/text_app_tagline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/status_permissions"
-            android:textColor="@color/status_green"
-            android:textSize="14sp" />
+            android:layout_marginTop="4dp"
+            android:text="@string/app_tagline"
+            android:textColor="@color/text_secondary"
+            android:textSize="15sp" />
 
         <TextView
-            android:id="@+id/text_build_summary"
+            android:id="@+id/text_version"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/build_summary"
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
-
-        <TextView
-            android:id="@+id/text_package_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Package: com.glyph.widget"
-            android:textColor="@color/text_secondary"
+            android:layout_marginTop="2dp"
+            android:text="@string/version_info"
+            android:textColor="@color/accent_blue"
             android:textSize="12sp" />
 
-    </LinearLayout>
-
-    <!-- Roadmap Notice -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/bg_card"
-        android:orientation="vertical"
-        android:padding="20dp">
-
+        <!-- Available Widgets Header -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Milestone Status"
+            android:layout_marginTop="32dp"
+            android:text="@string/section_widgets"
             android:textColor="@color/text_primary"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="wrap_content"
+        <!-- Widget 1: Clock & Calendar -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:lineSpacingMultiplier="1.2"
-            android:text="Commit 2 Foundation verified.\nNext Milestone: Widget entry registration, 4-side margin controls, themes, and 2D canvas compositor."
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/widget_clock_calendar_name"
+                    android:textColor="@color/text_primary"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/text_widget_status_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ic_launcher"
+                    android:paddingStart="8dp"
+                    android:paddingTop="3dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="3dp"
+                    android:text="Ready"
+                    android:textColor="@color/status_green"
+                    android:textSize="11sp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/widget_clock_calendar_desc"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/text_widget_placed_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Placed on home screen: Checking..."
+                android:textColor="@color/accent_blue"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/btn_refresh_widget"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_card"
+                android:text="Refresh Widget on Home Screen"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
+        </LinearLayout>
+
+        <!-- Multi-Widget Extensible Architecture Placeholder -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Multi-Widget Slot (Future Extensible)"
+                android:textColor="@color/text_secondary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingMultiplier="1.2"
+                android:text="Architecture configured to support multiple independent widget types. Next: Commit 4 (resizable pill &amp; 4-side margin tuner)."
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-</LinearLayout>
+</ScrollView>

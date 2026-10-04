@@ -122,8 +122,8 @@ flowchart LR
 ## Development Roadmap (Commit by Commit)
 
 * [x] **Commit 1**: Architecture & File Structure README
-* [x] **Commit 2**: Basic Installable App & Permissions (`Glyph.apk` bundle) *(Current)*
-* [ ] **Commit 3**: Multi-Widget Architecture Entry (Clock & Calendar Widget)
+* [x] **Commit 2**: Basic Installable App & Permissions (`Glyph.apk` bundle)
+* [x] **Commit 3**: Multi-Widget Architecture Entry (Clock & Calendar Widget) *(Current)*
 * [ ] **Commit 4**: Widget Background Pill & 4-Side Independent Margin Controls
 * [ ] **Commit 5**: 25+ Background Color Themes (Dual Text & Border Defaults)
 * [ ] **Commit 6**: 26th Theme - Frosted Glass & Intensity Slider

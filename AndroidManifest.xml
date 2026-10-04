@@ -29,5 +29,19 @@
             </intent-filter>
         </activity>
 
+        <!-- Clock & Calendar Widget Receiver -->
+        <receiver
+            android:name=".GlyphWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_clock_calendar_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.glyph.widget.ACTION_UPDATE_GLYPH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/glyph_clock_calendar_widget_info" />
+        </receiver>
+
     </application>
 </manifest>
