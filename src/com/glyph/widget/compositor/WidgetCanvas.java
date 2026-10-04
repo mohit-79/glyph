@@ -76,9 +76,10 @@ public class WidgetCanvas {
         if (isFrosted) {
             // Pure optical blur with ZERO white tint
             int blurRadius = Math.max(1, Math.min(50, prefs.getBlurIntensity(widgetType)));
+            int wpPos = prefs.getWallpaperPosition(widgetType);
 
-            // Try pulling wallpaper crop to optically blur the home screen behind the widget
-            Bitmap blurredWp = getBlurredWallpaper(context, width, height, pillRect, blurRadius);
+            // Pull coordinate-aligned wallpaper crop and optically blur
+            Bitmap blurredWp = WallpaperHelper.cropAndBlurForWidget(context, width, height, pillRect, blurRadius, wpPos);
             if (blurredWp != null) {
                 Path pillPath = new Path();
                 pillPath.addRoundRect(pillRect, cornerRadius, cornerRadius, Path.Direction.CW);
@@ -86,11 +87,20 @@ public class WidgetCanvas {
                 canvas.clipPath(pillPath);
                 canvas.drawBitmap(blurredWp, pillRect.left, pillRect.top, null);
                 canvas.restore();
-            }
 
-            // Zero white tint: background is completely transparent
-            bgPaint.setColor(Color.TRANSPARENT);
-            borderPaint.setColor(Color.parseColor("#44FFFFFF"));
+                // Zero white tint: background is completely transparent
+                bgPaint.setColor(Color.TRANSPARENT);
+                borderPaint.setColor(Color.parseColor("#44FFFFFF"));
+            } else {
+                // Frosted Glass Diffusion fallback when wallpaper is not yet synced
+                bgPaint.setShader(new LinearGradient(
+                        pillRect.left, pillRect.top,
+                        pillRect.right, pillRect.bottom,
+                        Color.argb(34, 255, 255, 255),
+                        Color.argb(12, 255, 255, 255),
+                        Shader.TileMode.CLAMP));
+                borderPaint.setColor(Color.argb(90, 255, 255, 255));
+            }
 
         } else if (isWithering) {
             // Weathered smoked obsidian glass with dark translucency
@@ -165,31 +175,6 @@ public class WidgetCanvas {
         return bitmap;
     }
 
-    private static Bitmap getBlurredWallpaper(Context context, int width, int height, RectF pillRect, int blurRadius) {
-        if (context == null) return null;
-        try {
-            WallpaperManager wm = WallpaperManager.getInstance(context);
-            Drawable d = wm.getDrawable();
-            if (d instanceof BitmapDrawable) {
-                Bitmap wp = ((BitmapDrawable) d).getBitmap();
-                if (wp != null && !wp.isRecycled()) {
-                    int pLeft = (int) Math.max(0, pillRect.left);
-                    int pTop = (int) Math.max(0, pillRect.top);
-                    int pW = (int) Math.max(20, pillRect.width());
-                    int pH = (int) Math.max(20, pillRect.height());
-
-                    Bitmap scaled = Bitmap.createScaledBitmap(wp, width, height, true);
-                    if (pLeft + pW <= scaled.getWidth() && pTop + pH <= scaled.getHeight()) {
-                        Bitmap crop = Bitmap.createBitmap(scaled, pLeft, pTop, pW, pH);
-                        return FastBlur.blurFast(crop, Math.max(1, Math.min(50, blurRadius)));
-                    }
-                }
-            }
-        } catch (Throwable ignored) {
-        }
-        return null;
-    }
-
     private static void drawSwatch(Canvas canvas, float cx, float cy, float radius, int color, float scale) {
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         p.setStyle(Paint.Style.FILL);
@@ -210,7 +195,7 @@ public class WidgetCanvas {
     /**
      * Renders the interactive preview bitmap with wallpaper backdrop and true optical blur.
      */
-    public static Bitmap renderPreview(int width, int height, GlyphPrefs prefs, String widgetType) {
+    public static Bitmap renderPreview(Context context, int width, int height, GlyphPrefs prefs, String widgetType) {
         if (width <= 0) width = 720;
         if (height <= 0) height = 360;
 
@@ -226,27 +211,56 @@ public class WidgetCanvas {
         int clockColor1 = prefs.getClockColor1(widgetType);
         int clockColor2 = prefs.getClockColor2(widgetType);
 
-        // Preview background with colorful shapes & stripes representing wallpaper
-        Paint bgCanvasPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        bgCanvasPaint.setColor(Color.parseColor("#0C111D"));
-        canvas.drawRect(0, 0, width, height, bgCanvasPaint);
+        Bitmap cachedWp = (context != null) ? WallpaperHelper.getCachedWallpaper(context) : null;
+        if (cachedWp != null && !cachedWp.isRecycled()) {
+            int wpPos = prefs.getWallpaperPosition(widgetType);
+            float yStartRatio, yEndRatio;
+            switch (wpPos) {
+                case WallpaperHelper.POSITION_TOP: yStartRatio = 0.07f; yEndRatio = 0.28f; break;
+                case WallpaperHelper.POSITION_UPPER_CENTER: yStartRatio = 0.22f; yEndRatio = 0.43f; break;
+                case WallpaperHelper.POSITION_CENTER: yStartRatio = 0.37f; yEndRatio = 0.58f; break;
+                case WallpaperHelper.POSITION_LOWER_CENTER: yStartRatio = 0.52f; yEndRatio = 0.73f; break;
+                case WallpaperHelper.POSITION_BOTTOM: yStartRatio = 0.67f; yEndRatio = 0.88f; break;
+                default: yStartRatio = 0.07f; yEndRatio = 0.28f; break;
+            }
+            float xStartRatio = 0.04f;
+            float xEndRatio = 0.96f;
+            int cropX = (int) (cachedWp.getWidth() * xStartRatio);
+            int cropY = (int) (cachedWp.getHeight() * yStartRatio);
+            int cropW = (int) (cachedWp.getWidth() * (xEndRatio - xStartRatio));
+            int cropH = (int) (cachedWp.getHeight() * (yEndRatio - yStartRatio));
 
-        // Striking diagonal stripes
-        Paint stripePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        stripePaint.setStrokeWidth(16f * scale);
-        for (int x = -100; x < width + 100; x += (int) (48f * scale)) {
-            stripePaint.setColor((x % 96 == 0) ? Color.parseColor("#1D3354") : Color.parseColor("#142338"));
-            canvas.drawLine(x, 0, x + (height / 2f), height, stripePaint);
+            cropX = Math.max(0, Math.min(cropX, cachedWp.getWidth() - 10));
+            cropY = Math.max(0, Math.min(cropY, cachedWp.getHeight() - 10));
+            cropW = Math.max(10, Math.min(cropW, cachedWp.getWidth() - cropX));
+            cropH = Math.max(10, Math.min(cropH, cachedWp.getHeight() - cropY));
+
+            Bitmap slice = Bitmap.createBitmap(cachedWp, cropX, cropY, cropW, cropH);
+            Bitmap scaledSlice = Bitmap.createScaledBitmap(slice, width, height, true);
+            canvas.drawBitmap(scaledSlice, 0, 0, null);
+        } else {
+            // Preview background with colorful shapes & stripes representing wallpaper
+            Paint bgCanvasPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            bgCanvasPaint.setColor(Color.parseColor("#0C111D"));
+            canvas.drawRect(0, 0, width, height, bgCanvasPaint);
+
+            // Striking diagonal stripes
+            Paint stripePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            stripePaint.setStrokeWidth(16f * scale);
+            for (int x = -100; x < width + 100; x += (int) (48f * scale)) {
+                stripePaint.setColor((x % 96 == 0) ? Color.parseColor("#1D3354") : Color.parseColor("#142338"));
+                canvas.drawLine(x, 0, x + (height / 2f), height, stripePaint);
+            }
+
+            // Circular background accents so blur diffusion is immediately obvious
+            Paint accentCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            accentCirclePaint.setColor(Color.parseColor("#4C1D95"));
+            canvas.drawCircle(width * 0.75f, height * 0.4f, 85f * scale, accentCirclePaint);
+
+            Paint coralCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            coralCirclePaint.setColor(Color.parseColor("#BE185D"));
+            canvas.drawCircle(width * 0.25f, height * 0.65f, 65f * scale, coralCirclePaint);
         }
-
-        // Circular background accents so blur diffusion is immediately obvious
-        Paint accentCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        accentCirclePaint.setColor(Color.parseColor("#4C1D95"));
-        canvas.drawCircle(width * 0.75f, height * 0.4f, 85f * scale, accentCirclePaint);
-
-        Paint coralCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        coralCirclePaint.setColor(Color.parseColor("#BE185D"));
-        canvas.drawCircle(width * 0.25f, height * 0.65f, 65f * scale, coralCirclePaint);
 
         // Faint outer bounds representing home screen cell boundary
         Paint cellBoundaryPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -374,7 +388,11 @@ public class WidgetCanvas {
         return bitmap;
     }
 
+    public static Bitmap renderPreview(int width, int height, GlyphPrefs prefs, String widgetType) {
+        return renderPreview(null, width, height, prefs, widgetType);
+    }
+
     public static Bitmap renderPreview(int width, int height, GlyphPrefs prefs) {
-        return renderPreview(width, height, prefs, GlyphPrefs.WIDGET_CLOCK_CALENDAR);
+        return renderPreview(null, width, height, prefs, GlyphPrefs.WIDGET_CLOCK_CALENDAR);
     }
 }

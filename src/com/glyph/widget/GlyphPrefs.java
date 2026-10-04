@@ -24,6 +24,7 @@ public class GlyphPrefs {
     public static final String DEFAULT_THEME_ID = "obsidian";
     public static final int DEFAULT_FROSTING_INTENSITY = 45;
     public static final int DEFAULT_BLUR_INTENSITY = 24;
+    public static final int DEFAULT_WALLPAPER_POSITION = 0; // 0 = Top, 1 = Upper Center, 2 = Center, etc.
 
     public static final int NO_OVERRIDE_COLOR = -1;
 
@@ -57,6 +58,14 @@ public class GlyphPrefs {
 
     public void setBlurIntensity(String widgetType, int blur) {
         prefs.edit().putInt(widgetType + "_blur_intensity", blur).apply();
+    }
+
+    public int getWallpaperPosition(String widgetType) {
+        return prefs.getInt(widgetType + "_wp_pos", DEFAULT_WALLPAPER_POSITION);
+    }
+
+    public void setWallpaperPosition(String widgetType, int position) {
+        prefs.edit().putInt(widgetType + "_wp_pos", position).apply();
     }
 
     public GlyphTheme.ThemeDef getTheme(String widgetType) {

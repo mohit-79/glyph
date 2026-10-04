@@ -1,7 +1,11 @@
 package com.glyph.widget;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -12,6 +16,7 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.glyph.widget.compositor.WallpaperHelper;
 import com.glyph.widget.compositor.WidgetCanvas;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +29,8 @@ import java.util.List;
 public class WidgetConfigActivity extends Activity {
 
     public static final String EXTRA_WIDGET_TYPE = "extra_widget_type";
+    private static final int REQUEST_PICK_WALLPAPER = 1001;
+    private static final int REQUEST_STORAGE_PERMISSION = 1002;
 
     private String widgetType = GlyphPrefs.WIDGET_CLOCK_CALENDAR;
     private GlyphPrefs prefs;
@@ -46,6 +53,11 @@ public class WidgetConfigActivity extends Activity {
     private TextView textBlurIntensityVal;
     private SeekBar seekFrostingIntensity;
     private TextView textFrostingIntensityVal;
+
+    private TextView textWallpaperStatus;
+    private Button btnSyncWallpaper;
+    private Button btnPickWallpaper;
+    private Spinner spinnerWallpaperPosition;
 
     private SeekBar seekMarginLeft;
     private SeekBar seekMarginTop;
@@ -101,6 +113,11 @@ public class WidgetConfigActivity extends Activity {
         textBlurIntensityVal = (TextView) findViewById(R.id.text_blur_intensity_val);
         seekFrostingIntensity = (SeekBar) findViewById(R.id.seek_frosting_intensity);
         textFrostingIntensityVal = (TextView) findViewById(R.id.text_frosting_intensity_val);
+
+        textWallpaperStatus = (TextView) findViewById(R.id.text_wallpaper_status);
+        btnSyncWallpaper = (Button) findViewById(R.id.btn_sync_wallpaper);
+        btnPickWallpaper = (Button) findViewById(R.id.btn_pick_wallpaper);
+        spinnerWallpaperPosition = (Spinner) findViewById(R.id.spinner_wallpaper_position);
 
         seekMarginLeft = (SeekBar) findViewById(R.id.seek_margin_left);
         seekMarginTop = (SeekBar) findViewById(R.id.seek_margin_top);
@@ -266,6 +283,115 @@ public class WidgetConfigActivity extends Activity {
                 GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
             }
         });
+
+        updateWallpaperStatus();
+
+        ArrayAdapter<String> posAdapter = new ArrayAdapter<String>(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                WallpaperHelper.POSITION_NAMES
+        );
+        spinnerWallpaperPosition.setAdapter(posAdapter);
+        int currentPos = Math.max(0, Math.min(WallpaperHelper.POSITION_NAMES.length - 1, prefs.getWallpaperPosition(widgetType)));
+        spinnerWallpaperPosition.setSelection(currentPos);
+
+        spinnerWallpaperPosition.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (prefs.getWallpaperPosition(widgetType) != position) {
+                    prefs.setWallpaperPosition(widgetType, position);
+                    refreshPreview();
+                    GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        btnSyncWallpaper.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleSyncWallpaper();
+            }
+        });
+
+        btnPickWallpaper.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(Intent.createChooser(intent, "Select Home Screen Wallpaper"), REQUEST_PICK_WALLPAPER);
+            }
+        });
+    }
+
+    private void updateWallpaperStatus() {
+        if (textWallpaperStatus == null) return;
+        if (WallpaperHelper.hasCachedWallpaper(this)) {
+            textWallpaperStatus.setText("Status: Wallpaper synced (Optical blur active)");
+            textWallpaperStatus.setTextColor(getResources().getColor(R.color.status_green));
+        } else {
+            textWallpaperStatus.setText("Status: Not synced (Using frosted fallback)");
+            textWallpaperStatus.setTextColor(getResources().getColor(R.color.text_secondary));
+        }
+    }
+
+    private void handleSyncWallpaper() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            if (checkSelfPermission("android.permission.READ_MEDIA_IMAGES") != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{"android.permission.READ_MEDIA_IMAGES"}, REQUEST_STORAGE_PERMISSION);
+                return;
+            }
+        } else if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission("android.permission.READ_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{"android.permission.READ_EXTERNAL_STORAGE"}, REQUEST_STORAGE_PERMISSION);
+                return;
+            }
+        }
+
+        performWallpaperSync();
+    }
+
+    private void performWallpaperSync() {
+        boolean success = WallpaperHelper.syncSystemWallpaper(this);
+        if (success) {
+            updateWallpaperStatus();
+            refreshPreview();
+            GlyphWidgetProvider.updateAllWidgets(this);
+            Toast.makeText(this, "Wallpaper synced successfully", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Could not auto-detect system wallpaper. Tap 'Pick from Gallery' to select it.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_STORAGE_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                performWallpaperSync();
+            } else {
+                Toast.makeText(this, "Permission denied. Tap 'Pick from Gallery' instead.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_PICK_WALLPAPER && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri imageUri = data.getData();
+            boolean success = WallpaperHelper.saveWallpaperFromUri(this, imageUri);
+            if (success) {
+                updateWallpaperStatus();
+                refreshPreview();
+                GlyphWidgetProvider.updateAllWidgets(this);
+                Toast.makeText(this, "Wallpaper loaded successfully", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Failed to load wallpaper image", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void updateThemeSpecsDisplay(GlyphTheme.ThemeDef theme) {
@@ -391,7 +517,7 @@ public class WidgetConfigActivity extends Activity {
     }
 
     private void refreshPreview() {
-        Bitmap previewBitmap = WidgetCanvas.renderPreview(720, 360, prefs, widgetType);
+        Bitmap previewBitmap = WidgetCanvas.renderPreview(this, 720, 360, prefs, widgetType);
         previewCanvas.setImageBitmap(previewBitmap);
     }
 }

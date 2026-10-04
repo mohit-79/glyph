@@ -238,6 +238,89 @@
                     android:layout_marginTop="8dp"
                     android:max="50" />
 
+                <!-- Divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="14dp"
+                    android:layout_marginBottom="14dp"
+                    android:background="#22FFFFFF" />
+
+                <!-- Wallpaper Source & Sync -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Home Screen Wallpaper Source"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/text_wallpaper_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="Status: Not synced (Using frosted fallback)"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btn_sync_wallpaper"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="5dp"
+                        android:background="@drawable/bg_card"
+                        android:text="Auto-Sync System"
+                        android:textColor="@color/accent_blue"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/btn_pick_wallpaper"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="5dp"
+                        android:background="@drawable/bg_card"
+                        android:text="Pick from Gallery"
+                        android:textColor="@color/accent_blue"
+                        android:textSize="11sp" />
+
+                </LinearLayout>
+
+                <!-- Widget Screen Position Alignment -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="Widget Screen Position"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="Matches the exact wallpaper area behind the widget"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <Spinner
+                    android:id="@+id/spinner_wallpaper_position"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_card"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp" />
+
             </LinearLayout>
 
             <!-- Row 2: Withering Glass Density (Only for Withering Glass) -->
