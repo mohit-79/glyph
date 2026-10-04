@@ -1,139 +1,173 @@
 # Glyph: Artistic Home Screen Widgets
 
-Glyph is an Android home screen widget app engineered from the ground up with a pure 2D Canvas Compositor engine. This repository contains the source code, architecture, and toolchain for Glyph (`com.glyph.widget`).
+Glyph is an Android home screen widget app engineered from the ground up with a pure 2D Canvas Compositor engine. Instead of relying on rigid, clunky XML View hierarchies that suffer from multi-line text wrapping or clipping during resize, Glyph renders complete widgets (background pills, borders, calendar grids, and clock digits) onto high-resolution 2D bitmaps and transfers them directly to the launcher via RemoteViews.
+
+This repository contains the complete source code, architecture, and standalone build toolchain for Glyph (`com.glyph.widget`).
 
 ---
 
-## Android Application Architecture & File Structure
+## Architecture & Project Structure
 
-An Android application is packaged as an Android Package (`.apk`), which is essentially a specialized zip archive containing compiled code, packaged resources, assets, certificates, and an application manifest.
-
-Below is the foundational anatomy and file structure of an Android application:
+The project is structured for high modularity, per-widget isolated state persistence, and direct compilation via Android build tools (AAPT, javac, D8, apksigner) without Gradle overhead:
 
 ```
 glyph/
-├── AndroidManifest.xml          # The application blueprint and OS contract
-├── README.md                    # Project documentation and architectural guide
-├── build.sh                     # Compilation, dexing, packaging, and signing pipeline
-├── res/                         # Application resources (compiled by AAPT)
-│   ├── drawable/                # Vector drawables, layer-lists, and shape XMLs
-│   ├── layout/                  # User interface layouts and RemoteViews hierarchies
-│   │   ├── activity_main.xml    # In-app settings and configuration screen
-│   │   └── glyph_widget.xml     # Launcher widget RemoteViews container
-│   ├── mipmap-xxxhdpi/          # App and launcher icons at various DPI densities
-│   ├── values/                  # Reusable scalar values
-│   │   ├── colors.xml           # Semantic color palettes and theme defaults
-│   │   ├── dimens.xml           # Margins, paddings, corner radii, and text sizes
-│   │   ├── strings.xml          # Translatable text strings and UI labels
-│   │   └── styles.xml           # UI themes and component styling
-│   └── xml/                     # System-level metadata descriptors
-│       └── glyph_widget_info.xml# AppWidgetProviderInfo configuration
-└── src/                         # Application source code
-    └── com/glyph/widget/        # Package namespace (com.glyph.widget)
-        ├── MainActivity.java    # Configuration Activity & interactive customization
-        ├── GlyphWidgetProvider.java # BroadcastReceiver managing widget lifecycle
-        ├── GlyphPrefs.java      # SharedPreferences management & state persistence
-        ├── GlyphTheme.java      # Theme definitions and color palette matrices
-        └── compositor/          # Pure 2D Canvas rendering engine
-            ├── WidgetCanvas.java    # High-DPI bitmap drawing pipeline
-            ├── CalendarRenderer.java# Artistic calendar styles & layout geometry
-            └── ClockRenderer.java   # Single-line stylized clock typographies
+├── AndroidManifest.xml                  # Application blueprint, permissions, and component contracts
+├── README.md                            # Project documentation and architectural guide
+├── build.sh                             # Compilation, dexing, packaging, and signing pipeline
+├── debug.keystore                       # Development signing keystore
+├── res/                                 # Packaged application resources
+│   ├── drawable/                        # Vector assets and background card drawables
+│   │   ├── bg_card.xml                  # Rounded card container style
+│   │   ├── ic_launcher.xml              # Vector launcher icon
+│   │   └── widget_preview.xml           # Launcher widget preview asset
+│   ├── layout/                          # UI layout hierarchies
+│   │   ├── activity_main.xml            # Multi-widget hub and selector dashboard
+│   │   ├── activity_widget_config.xml   # Dedicated per-widget live customization studio
+│   │   └── widget_clock_calendar.xml    # RemoteViews container for launcher instances
+│   ├── values/                          # Scalar values
+│   │   ├── colors.xml                   # Semantic color definitions
+│   │   └── strings.xml                  # Application strings and labels
+│   └── xml/                             # System metadata descriptors
+│       └── glyph_clock_calendar_widget_info.xml # AppWidgetProviderInfo configuration
+└── src/                                 # Java source code
+    └── com/glyph/widget/
+        ├── MainActivity.java            # Multi-widget hub launching isolated customization studios
+        ├── WidgetConfigActivity.java    # Interactive customizer with live canvas preview
+        ├── GlyphWidgetProvider.java     # BroadcastReceiver managing widget lifecycle and updates
+        ├── GlyphPrefs.java              # Namespaced SharedPreferences state persistence engine
+        ├── GlyphTheme.java              # Catalog of 27 curated color palettes and theme matrices
+        └── compositor/                  # Pure 2D Canvas rendering engine
+            ├── WidgetCanvas.java        # High-DPI bitmap compositor and pill geometry engine
+            ├── CalendarRenderer.java    # Dynamic live-date calendar with 2D transform matrix
+            ├── FastBlur.java            # Dual-pass optical StackBlur algorithm implementation
+            └── WallpaperHelper.java     # System wallpaper sampler, gallery picker, and coordinate slicer
 ```
 
 ---
 
-## Detailed Breakdown of Core Android Components
+## Core Engine Components
 
-### 1. The Manifest (`AndroidManifest.xml`)
-The `AndroidManifest.xml` file is the fundamental declaration required by the Android operating system. It sits at the root of the project and informs the OS about:
-* **Package Identity**: Unique reverse-DNS package identifier (e.g., `com.glyph.widget`).
-* **SDK Compatibility**: `minSdkVersion` (minimum supported Android version, e.g. API 21 for Android 5.0+) and `targetSdkVersion` (target Android version, e.g. API 33 for Android 13).
-* **Permissions**: System capabilities requested by the app.
-* **Application Components**:
-  * **Activities**: UI windows the user can interact with (`MainActivity`).
-  * **BroadcastReceivers**: Components listening to system or app-specific broadcasts (`GlyphWidgetProvider` listening for `ACTION_APPWIDGET_UPDATE`, time ticks, or custom broadcast actions).
-  * **Metadata**: Links connecting the AppWidgetReceiver to its XML metadata specification.
+### 1. 2D Canvas Compositor Engine (`WidgetCanvas.java`)
+Standard Android widget layouts run in the launcher's process via `RemoteViews`, which severely limits layout flexibility and introduces graphical artifacts during resizing. Glyph solves this by compositing the entire widget surface directly onto an in-memory `android.graphics.Bitmap` at device DPI:
+* Computes rounded pill bounds with sub-pixel floating-point geometry.
+* Evaluates unoccupied space offsets derived from 4 independent margin tuners.
+* Renders borders, backgrounds, and element layers with anti-aliasing.
+* Transfers the finalized bitmap to `RemoteViews.setImageViewBitmap()`.
+
+### 2. Isolated Multi-Widget Persistence (`GlyphPrefs.java`)
+All widget settings are namespaced by widget type (e.g. `clock_calendar`), ensuring independent configuration for each widget family without crosstalk:
+* 4-side independent margins (`margin_left`, `margin_right`, `margin_top`, `margin_bottom`).
+* Corner radius styling.
+* Active theme index (0 to 26).
+* Optical blur intensity and screen placement.
+* Border thickness and custom sRGB border color override.
+* Calendar continuous horizontal offset (X), vertical offset (Y), and scale zoom.
+
+### 3. Optical Blur & Wallpaper Engine (`WallpaperHelper.java`, `FastBlur.java`)
+Because Android security sandboxing prevents widgets from capturing home screen pixels directly, Glyph provides true optical blur through coordinate-aligned sampling:
+* **System Wallpaper Auto-Sync**: Queries `WallpaperManager` with runtime storage permissions.
+* **Gallery Photo Picker Fallback**: Fallback picker for devices with dynamic or live wallpapers (such as MIUI Super Wallpapers).
+* **Coordinate Ratio Slicing**: Slices the underlying wallpaper into 5 vertical bands (`Top`, `Upper Center`, `Center`, `Lower Center`, `Bottom`) to accurately align background imagery.
+* **StackBlur Pipeline**: High-speed, dual-pass box-blur approximation with adjustable radius (1 to 25px) and zero white tint for genuine frosted transparency.
+* **Frosted Fallback**: When wallpaper is unsynced, renders a delicate frosted diffusion shader so widgets remain readable.
+
+### 4. Live 2D Calendar Engine (`CalendarRenderer.java`)
+Draws an authentic, real-time monthly calendar directly onto the 2D canvas:
+* Calculates the active month, total days, first-day-of-week offset, and current day index.
+* Renders day-of-week initials and date grid numbers.
+* Highlights the current active date with a circular badge and computes automatic high-contrast foreground text colors.
+* Supports continuous in-app transformations:
+  * Horizontal Position (X): -120dp to +120dp
+  * Vertical Position (Y): -80dp to +80dp
+  * Calendar Scale (Zoom): 50% to 180%
+* One-tap reset button to restore default positioning and scale.
+
+### 5. Border Studio & Full sRGB Color Gamut Picker
+* **Thickness Control**: Continuous slider from `0dp` (completely borderless) to `16dp` (ultra thick).
+* **Full sRGB Gamut**: Rainbow Hue spectrum bar (0 to 360 degrees), Saturation slider (0% to 100%), and Brightness/Value slider (0% to 100%) providing access to all 16.7 million colors.
+* **8-Color Quick Palette**: Quick swatches for White, Slate, Charcoal, Red, Amber, Emerald, Cyan, and Violet.
+* **Theme Default Reset**: Instant reset button reverting to the active theme's default border palette.
+
+### 6. Curated Theme Catalog (`GlyphTheme.java`)
+Contains 27 curated themes with coordinated colors for backgrounds, borders, and typography:
+1. Obsidian Dark
+2. Porcelain Light
+3. Emerald Mint
+4. Cyber Neon
+5. Nordic Lavender
+6. Brushed Titanium
+7. Amber Gold
+8. Crimson Velvet
+9. Deep Ocean
+10. Matcha Latte
+11. Terracotta Sunset
+12. Midnight Purple
+13. Monochrome Slate
+14. Solar Dawn
+15. Nordic Frost
+16. Charcoal Minimal
+17. Desert Dune
+18. Rose Quartz
+19. Cobalt Blue
+20. Olive Drab
+21. Graphite Orange
+22. Pastel Mint
+23. Steel Blue
+24. Wine Berry
+25. Mocha Espresso
+26. Withering Glass (Dark smoked obsidian glass with soft translucency)
+27. Frosted Glass (100% transparent widget with pure optical blur and zero white tint)
 
 ---
 
-### 2. The Resource Hierarchy (`res/`)
-All non-code assets and UI declarations reside in the `res/` directory and are assigned integer resource IDs by the Android Asset Packaging Tool (`AAPT`) in the generated `R.java` class:
+## Build Pipeline & Toolchain
 
-* **`res/layout/`**:
-  * In standard Android apps, layouts define the View hierarchy rendered by the GPU within the app's process.
-  * In **Widget applications**, widget layouts run inside the **Home Screen Launcher process**, not the app process. Therefore, they must use `RemoteViews`, a cross-process IPC mechanism limited to a specific subset of Android layouts (`FrameLayout`, `LinearLayout`, `RelativeLayout`) and basic views (`ImageView`, `TextView`).
-* **`res/xml/`**:
-  * Used for XML configuration files. For home screen widgets, `res/xml/glyph_widget_info.xml` defines the `<appwidget-provider>` attributes:
-    * `minWidth` and `minHeight`: Default grid cell size on the home screen.
-    * `updatePeriodMillis`: Periodic update interval requested from the OS.
-    * `resizeMode`: Whether the user can resize the widget horizontally, vertically, or both (`"horizontal|vertical"`).
-    * `widgetCategory`: Placement target (`"home_screen"`).
-* **`res/values/`**:
-  * XML files containing structured values such as strings (`strings.xml`), colors (`colors.xml`), and dimensions (`dimens.xml`). Decoupling these from code ensures maintainability and internationalization.
-* **`res/drawable/` & `res/mipmap/`**:
-  * Graphic assets, vector XMLs, and multi-density application icons (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`).
+The project features a standalone bash build script (`build.sh`) designed for fast compilation in Termux or any standard Linux environment without requiring Gradle:
 
----
-
-### 3. Source Code (`src/`)
-The Java source code implements the application logic:
-
-* **`MainActivity.java`**: The entry point launched from the application drawer. Houses the customization controls (sliders for 4-side margins, border thickness, color gamut pickers, and style selectors) and provides real-time canvas preview.
-* **`GlyphWidgetProvider.java`**: An extension of `AppWidgetProvider` (which inherits from `BroadcastReceiver`). It receives system callbacks when widgets are placed, resized, updated, or removed from the home screen.
-* **`GlyphPrefs.java`**: Centralized persistence layer reading and writing user preferences using Android's lightweight XML key-value store (`SharedPreferences`).
-* **`GlyphTheme.java`**: Structured catalog of 26+ curated color palettes, storing complementary background, border, calendar, and clock colors.
-* **2D Canvas Compositor**:
-  * Instead of relying on rigid, clunky XML View hierarchies that suffer from multi-line text wrapping or clipping during resize, the compositor renders the complete widget (background pill, borders, calendar grid, and clock digits) onto a high-resolution 2D `android.graphics.Canvas` and transfers the resulting `Bitmap` directly to the launcher via `RemoteViews.setImageViewBitmap()`.
-
----
-
-## The Android Build & Compilation Pipeline
-
-Building an installable Android APK from source involves four distinct stages:
-
-```mermaid
-flowchart LR
-    A["res/ + Manifest"] -->|aapt| B["resources.ap_ + R.java"]
-    C["src/ + R.java"] -->|javac| D[".class Bytecode"]
-    D -->|d8| E["classes.dex"]
-    B & E -->|aapt package| F["Unsigned APK"]
-    F -->|apksigner| G["Signed Glyph.apk"]
+```
+res/ + AndroidManifest.xml
+       │
+       ▼ (aapt package -m -J)
+  R.java + resources.ap_
+       │
+       ▼ (javac -cp android.jar)
+  .class Bytecode
+       │
+       ▼ (d8 / r8)
+  classes.dex
+       │
+       ▼ (aapt add)
+  glyph-unsigned.apk
+       │
+       ▼ (apksigner)
+  Signed Glyph.apk
 ```
 
-1. **AAPT (Resource Compilation)**:
-   * Parses `AndroidManifest.xml` and validates all XML files in `res/`.
-   * Assigns numeric resource identifiers and outputs `R.java`.
-   * Compiles XML assets into binary format and packages them into `resources.ap_`.
-
-2. **Javac (Java Compilation)**:
-   * Compiles all `.java` source files alongside `R.java` against the Android SDK platform JAR (`android.jar`).
-   * Produces standard JVM `.class` bytecode files.
-
-3. **D8 (Dexing)**:
-   * Translates Java 8+ `.class` bytecode into Dalvik Executable (`classes.dex`) format, optimized for Android's ART (Android Runtime).
-
-4. **APK Packaging & Signing (AAPT & APKSigner)**:
-   * Merges `classes.dex` and `resources.ap_` into a single archive (`.apk`).
-   * Aligns archive entries to 4-byte boundaries for memory-mapped I/O efficiency.
-   * Cryptographically signs the APK with an RSA keystore using v2 and v3 signature schemes, enabling direct installation on Android devices.
+### Building the APK
+Run the build script from the repository root:
+```bash
+./build.sh
+```
+The output APK is compiled, dexed, aligned, and signed with `debug.keystore`, producing `Glyph.apk`.
 
 ---
 
-## Development Roadmap (Commit by Commit)
+## Roadmap & Commit History
 
-* [x] **Commit 1**: Architecture & File Structure README
-* [x] **Commit 2**: Basic Installable App & Permissions (`Glyph.apk` bundle)
-* [x] **Commit 3**: Multi-Widget Architecture Entry (Clock & Calendar Widget)
+* [x] **Commit 1**: Architecture & File Structure Documentation
+* [x] **Commit 2**: Basic Installable App & Build Toolchain
+* [x] **Commit 3**: Multi-Widget Entry Architecture (Clock & Calendar Provider)
 * [x] **Commit 4**: Widget Background Pill & 4-Side Independent Margin Controls
-* [x] **Commit 4.1**: Multi-Widget Listing Hub & Per-Widget Isolated Margin Controls
-* [x] **Commit 5**: 25+ Background Color Themes (Dual Text & Border Defaults)
-* [x] **Commit 5.1**: Withering Glass & Transparent Widget with Optical Blur Intensity *(Current)*
-* [x] **Commit 6**: 26th Theme - Frosted Glass & Intensity Slider
-* [ ] **Commit 7**: Border Customizer (sRGB Color Gamut & 0 to Very Thick Slider)
-* [ ] **Commit 8**: Movable & Resizable Test Calendar Foundation
-* [ ] **Commit 9**: Multiple Artistic Calendar Styles (11 Reference Variants)
+* [x] **Commit 4.1**: Multi-Widget Listing Hub & Per-Widget Isolated Preferences
+* [x] **Commit 5**: 25+ Curated Color Themes with Dual Text & Border Defaults
+* [x] **Commit 5.1**: Withering Glass & Transparent Frosted Glass Separation
+* [x] **Commit 5.2**: Wallpaper-Aligned Optical Blur Engine & Dynamic Glass Controls
+* [x] **Commit 7**: Border Customizer (0 to 16dp Thickness, sRGB HSV Spectrum & Quick Palette)
+* [x] **Commit 8**: Dynamic 2D Calendar Foundation with Live Dates & Continuous (X, Y, Scale) Transforms
+* [ ] **Commit 9**: Multiple Artistic Calendar Styles (11 Distinct Aesthetic Variants)
 * [ ] **Commit 10**: Two-Tone Calendar sRGB Gamut Customizer
 * [ ] **Commit 11**: Movable & Resizable Test Clock Foundation
-* [ ] **Commit 12**: Multiple Artistic Clock Styles (12 Reference Variants)
+* [ ] **Commit 12**: Multiple Artistic Clock Styles (12 Distinct Aesthetic Variants)
 * [ ] **Commit 13**: Clock Two-Tone sRGB Gamut Customizer
 * [ ] **Commit 14**: In-App UI/UX Aesthetic Redesign
