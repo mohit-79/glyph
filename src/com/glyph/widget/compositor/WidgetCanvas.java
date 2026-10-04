@@ -142,45 +142,45 @@ public class WidgetCanvas {
             canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, borderPaint);
         }
 
-        float centerX = pillRect.centerX();
-        float centerY = pillRect.centerY();
+        // 1. Draw Movable & Resizable Calendar Element
+        int calX = prefs.getCalendarX(widgetType);
+        int calY = prefs.getCalendarY(widgetType);
+        int calScale = prefs.getCalendarScale(widgetType);
 
-        // Theme Title & Primary Display
+        CalendarRenderer.drawCalendar(
+                canvas, pillRect, scale,
+                calX, calY, calScale,
+                calColor1, calColor2
+        );
+
+        // 2. Compact Theme & Engine Header
         Paint titlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         titlePaint.setColor(clockColor1);
-        titlePaint.setTextSize(26f * scale);
-        titlePaint.setTextAlign(Paint.Align.CENTER);
+        titlePaint.setTextSize(11f * scale);
+        titlePaint.setTextAlign(Paint.Align.RIGHT);
         titlePaint.setFakeBoldText(true);
 
         String displayTitle;
         if (isFrosted) {
-            displayTitle = "FROSTED GLASS (BLUR " + prefs.getBlurIntensity(widgetType) + "PX)";
+            displayTitle = "FROSTED GLASS (" + prefs.getBlurIntensity(widgetType) + "PX)";
         } else if (isWithering) {
             displayTitle = "WITHERING GLASS " + prefs.getFrostingIntensity(widgetType) + "%";
         } else {
             displayTitle = theme.name.toUpperCase();
         }
-        canvas.drawText(displayTitle, centerX, centerY - (18f * scale), titlePaint);
+        canvas.drawText(displayTitle, pillRect.right - (16f * scale), pillRect.top + (20f * scale), titlePaint);
 
-        // Stored Clock Colors indicator
         Paint clockIndicatorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         clockIndicatorPaint.setColor(clockColor2);
-        clockIndicatorPaint.setTextSize(13f * scale);
-        clockIndicatorPaint.setTextAlign(Paint.Align.CENTER);
-        canvas.drawText("Clock Colors: Pri / Sec", centerX, centerY + (6f * scale), clockIndicatorPaint);
+        clockIndicatorPaint.setTextSize(9f * scale);
+        clockIndicatorPaint.setTextAlign(Paint.Align.RIGHT);
+        canvas.drawText("Clock Engine (Commit 11)", pillRect.right - (16f * scale), pillRect.top + (34f * scale), clockIndicatorPaint);
 
-        // Stored Calendar Colors indicator
-        Paint calIndicatorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        calIndicatorPaint.setColor(calColor2);
-        calIndicatorPaint.setTextSize(13f * scale);
-        calIndicatorPaint.setTextAlign(Paint.Align.CENTER);
-        canvas.drawText("Calendar Colors: Pri / Sec", centerX, centerY + (26f * scale), calIndicatorPaint);
-
-        // Color Swatches Bar inside the pill
-        float swatchY = centerY + (42f * scale);
-        float swatchRadius = 6f * scale;
-        float spacing = 22f * scale;
-        float startX = centerX - (spacing * 1.5f);
+        // 3. Compact Swatches in corner
+        float swatchY = pillRect.bottom - (14f * scale);
+        float swatchRadius = 4.5f * scale;
+        float spacing = 16f * scale;
+        float startX = pillRect.right - (spacing * 3.5f) - (8f * scale);
 
         drawSwatch(canvas, startX, swatchY, swatchRadius, calColor1, scale);
         drawSwatch(canvas, startX + spacing, swatchY, swatchRadius, calColor2, scale);
@@ -378,38 +378,45 @@ public class WidgetCanvas {
             canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, borderPaint);
         }
 
-        float centerX = pillRect.centerX();
-        float centerY = pillRect.centerY();
+        // 1. Draw Movable & Resizable Calendar Element
+        int calX = prefs.getCalendarX(widgetType);
+        int calY = prefs.getCalendarY(widgetType);
+        int calScale = prefs.getCalendarScale(widgetType);
 
-        // Theme name label
+        CalendarRenderer.drawCalendar(
+                canvas, pillRect, scale,
+                calX, calY, calScale,
+                calColor1, calColor2
+        );
+
+        // 2. Compact Theme & Engine Header
         Paint titlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         titlePaint.setColor(clockColor1);
-        titlePaint.setTextSize(24f * scale);
-        titlePaint.setTextAlign(Paint.Align.CENTER);
+        titlePaint.setTextSize(11f * scale);
+        titlePaint.setTextAlign(Paint.Align.RIGHT);
         titlePaint.setFakeBoldText(true);
 
         String previewTitle;
         if (isFrosted) {
-            previewTitle = "FROSTED GLASS (BLUR " + prefs.getBlurIntensity(widgetType) + "PX)";
+            previewTitle = "FROSTED GLASS (" + prefs.getBlurIntensity(widgetType) + "PX)";
         } else if (isWithering) {
-            previewTitle = "WITHERING GLASS (" + prefs.getFrostingIntensity(widgetType) + "%)";
+            previewTitle = "WITHERING GLASS " + prefs.getFrostingIntensity(widgetType) + "%";
         } else {
-            previewTitle = theme.name;
+            previewTitle = theme.name.toUpperCase();
         }
-        canvas.drawText(previewTitle, centerX, centerY - (14f * scale), titlePaint);
+        canvas.drawText(previewTitle, pillRect.right - (16f * scale), pillRect.top + (20f * scale), titlePaint);
 
-        // Stored color values display
-        Paint subPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        subPaint.setColor(clockColor2);
-        subPaint.setTextSize(12f * scale);
-        subPaint.setTextAlign(Paint.Align.CENTER);
-        canvas.drawText("Stored: Border (1) • Cal (2) • Clock (2)", centerX, centerY + (8f * scale), subPaint);
+        Paint clockIndicatorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        clockIndicatorPaint.setColor(clockColor2);
+        clockIndicatorPaint.setTextSize(9f * scale);
+        clockIndicatorPaint.setTextAlign(Paint.Align.RIGHT);
+        canvas.drawText("Clock Engine (Commit 11)", pillRect.right - (16f * scale), pillRect.top + (34f * scale), clockIndicatorPaint);
 
-        // Color Swatches
-        float swatchY = centerY + (28f * scale);
-        float swatchRadius = 6f * scale;
-        float spacing = 22f * scale;
-        float startX = centerX - (spacing * 1.5f);
+        // 3. Compact Swatches in corner
+        float swatchY = pillRect.bottom - (14f * scale);
+        float swatchRadius = 4.5f * scale;
+        float spacing = 16f * scale;
+        float startX = pillRect.right - (spacing * 3.5f) - (8f * scale);
 
         drawSwatch(canvas, startX, swatchY, swatchRadius, calColor1, scale);
         drawSwatch(canvas, startX + spacing, swatchY, swatchRadius, calColor2, scale);

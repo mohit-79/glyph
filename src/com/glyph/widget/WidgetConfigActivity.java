@@ -78,6 +78,15 @@ public class WidgetConfigActivity extends Activity {
     private TextView textValueVal;
     private boolean isUpdatingBorderFromCode = false;
 
+    // Calendar Transform fields
+    private SeekBar seekCalX;
+    private TextView textCalXVal;
+    private SeekBar seekCalY;
+    private TextView textCalYVal;
+    private SeekBar seekCalScale;
+    private TextView textCalScaleVal;
+    private Button btnResetCalTransform;
+
     private SeekBar seekMarginLeft;
     private SeekBar seekMarginTop;
     private SeekBar seekMarginRight;
@@ -110,6 +119,7 @@ public class WidgetConfigActivity extends Activity {
         initThemes();
         initGlassControls();
         initBorderControls();
+        initCalendarTransformControls();
         initControls();
         refreshPreview();
     }
@@ -152,6 +162,14 @@ public class WidgetConfigActivity extends Activity {
         textSaturationVal = (TextView) findViewById(R.id.text_saturation_val);
         seekValue = (SeekBar) findViewById(R.id.seek_value);
         textValueVal = (TextView) findViewById(R.id.text_value_val);
+
+        seekCalX = (SeekBar) findViewById(R.id.seek_cal_x);
+        textCalXVal = (TextView) findViewById(R.id.text_cal_x_val);
+        seekCalY = (SeekBar) findViewById(R.id.seek_cal_y);
+        textCalYVal = (TextView) findViewById(R.id.text_cal_y_val);
+        seekCalScale = (SeekBar) findViewById(R.id.seek_cal_scale);
+        textCalScaleVal = (TextView) findViewById(R.id.text_cal_scale_val);
+        btnResetCalTransform = (Button) findViewById(R.id.btn_reset_cal_transform);
 
         seekMarginLeft = (SeekBar) findViewById(R.id.seek_margin_left);
         seekMarginTop = (SeekBar) findViewById(R.id.seek_margin_top);
@@ -608,6 +626,106 @@ public class WidgetConfigActivity extends Activity {
         seekValue.setProgress(Math.round(hsv[2] * 100f));
         textValueVal.setText(Math.round(hsv[2] * 100f) + "%");
         isUpdatingBorderFromCode = false;
+    }
+
+    private void initCalendarTransformControls() {
+        int calX = prefs.getCalendarX(widgetType);
+        int calY = prefs.getCalendarY(widgetType);
+        int calScale = prefs.getCalendarScale(widgetType);
+
+        seekCalX.setProgress(calX + 120);
+        updateCalXDisplay(calX);
+
+        seekCalY.setProgress(calY + 80);
+        updateCalYDisplay(calY);
+
+        seekCalScale.setProgress(calScale - 50);
+        textCalScaleVal.setText(calScale + "%");
+
+        seekCalX.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int val = progress - 120;
+                updateCalXDisplay(val);
+                prefs.setCalendarX(widgetType, val);
+                refreshPreview();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+            }
+        });
+
+        seekCalY.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int val = progress - 80;
+                updateCalYDisplay(val);
+                prefs.setCalendarY(widgetType, val);
+                refreshPreview();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+            }
+        });
+
+        seekCalScale.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int val = progress + 50;
+                textCalScaleVal.setText(val + "%");
+                prefs.setCalendarScale(widgetType, val);
+                refreshPreview();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+            }
+        });
+
+        btnResetCalTransform.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prefs.resetCalendarTransform(widgetType);
+                initCalendarTransformControls();
+                refreshPreview();
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                Toast.makeText(WidgetConfigActivity.this, "Reset calendar position & scale", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updateCalXDisplay(int x) {
+        if (x == 0) {
+            textCalXVal.setText("0 dp (Center)");
+        } else if (x > 0) {
+            textCalXVal.setText("+" + x + " dp (Right)");
+        } else {
+            textCalXVal.setText(x + " dp (Left)");
+        }
+    }
+
+    private void updateCalYDisplay(int y) {
+        if (y == 0) {
+            textCalYVal.setText("0 dp (Center)");
+        } else if (y > 0) {
+            textCalYVal.setText("+" + y + " dp (Down)");
+        } else {
+            textCalYVal.setText(y + " dp (Up)");
+        }
     }
 
     private void updateThemeSpecsDisplay(GlyphTheme.ThemeDef theme) {

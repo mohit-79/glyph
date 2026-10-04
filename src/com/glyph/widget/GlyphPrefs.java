@@ -26,6 +26,9 @@ public class GlyphPrefs {
     public static final int DEFAULT_BLUR_INTENSITY = 24;
     public static final int DEFAULT_WALLPAPER_POSITION = 0; // 0 = Top, 1 = Upper Center, 2 = Center, etc.
     public static final int DEFAULT_BORDER_THICKNESS = 3; // 0dp to 16dp
+    public static final int DEFAULT_CALENDAR_X = 0;
+    public static final int DEFAULT_CALENDAR_Y = 0;
+    public static final int DEFAULT_CALENDAR_SCALE = 100;
 
     public static final int NO_OVERRIDE_COLOR = -1;
 
@@ -233,6 +236,40 @@ public class GlyphPrefs {
                 .putInt(widgetType + "_margin_right", DEFAULT_MARGIN_RIGHT)
                 .putInt(widgetType + "_margin_bottom", DEFAULT_MARGIN_BOTTOM)
                 .putInt(widgetType + "_corner_radius", DEFAULT_CORNER_RADIUS)
+                .apply();
+    }
+
+    // --- Per-Widget Calendar Position & Scale Transform ---
+
+    public int getCalendarX(String widgetType) {
+        return prefs.getInt(widgetType + "_cal_x", DEFAULT_CALENDAR_X);
+    }
+
+    public void setCalendarX(String widgetType, int val) {
+        prefs.edit().putInt(widgetType + "_cal_x", val).apply();
+    }
+
+    public int getCalendarY(String widgetType) {
+        return prefs.getInt(widgetType + "_cal_y", DEFAULT_CALENDAR_Y);
+    }
+
+    public void setCalendarY(String widgetType, int val) {
+        prefs.edit().putInt(widgetType + "_cal_y", val).apply();
+    }
+
+    public int getCalendarScale(String widgetType) {
+        return prefs.getInt(widgetType + "_cal_scale", DEFAULT_CALENDAR_SCALE);
+    }
+
+    public void setCalendarScale(String widgetType, int val) {
+        prefs.edit().putInt(widgetType + "_cal_scale", val).apply();
+    }
+
+    public void resetCalendarTransform(String widgetType) {
+        prefs.edit()
+                .putInt(widgetType + "_cal_x", DEFAULT_CALENDAR_X)
+                .putInt(widgetType + "_cal_y", DEFAULT_CALENDAR_Y)
+                .putInt(widgetType + "_cal_scale", DEFAULT_CALENDAR_SCALE)
                 .apply();
     }
 
