@@ -34,7 +34,12 @@ public class WidgetConfigActivity extends Activity {
     private Spinner spinnerThemes;
     private Button btnPrevTheme;
     private Button btnNextTheme;
+    private Button btnSelectFrostedGlass;
     private TextView textThemeSpecs;
+
+    private View cardFrostedIntensity;
+    private SeekBar seekFrostingIntensity;
+    private TextView textFrostingIntensityVal;
 
     private SeekBar seekMarginLeft;
     private SeekBar seekMarginTop;
@@ -66,6 +71,7 @@ public class WidgetConfigActivity extends Activity {
         prefs = new GlyphPrefs(this);
         bindViews();
         initThemes();
+        initFrostingControls();
         initControls();
         refreshPreview();
     }
@@ -78,7 +84,12 @@ public class WidgetConfigActivity extends Activity {
         spinnerThemes = (Spinner) findViewById(R.id.spinner_themes);
         btnPrevTheme = (Button) findViewById(R.id.btn_prev_theme);
         btnNextTheme = (Button) findViewById(R.id.btn_next_theme);
+        btnSelectFrostedGlass = (Button) findViewById(R.id.btn_select_frosted_glass);
         textThemeSpecs = (TextView) findViewById(R.id.text_theme_specs);
+
+        cardFrostedIntensity = findViewById(R.id.card_frosted_intensity);
+        seekFrostingIntensity = (SeekBar) findViewById(R.id.seek_frosting_intensity);
+        textFrostingIntensityVal = (TextView) findViewById(R.id.text_frosting_intensity_val);
 
         seekMarginLeft = (SeekBar) findViewById(R.id.seek_margin_left);
         seekMarginTop = (SeekBar) findViewById(R.id.seek_margin_top);
@@ -126,6 +137,7 @@ public class WidgetConfigActivity extends Activity {
         int currentIdx = GlyphTheme.getThemeIndexById(prefs.getThemeId(widgetType));
         spinnerThemes.setSelection(currentIdx);
         updateThemeSpecsDisplay(themes.get(currentIdx));
+        updateFrostingCardVisibility(themes.get(currentIdx).id);
 
         spinnerThemes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -137,6 +149,7 @@ public class WidgetConfigActivity extends Activity {
                 GlyphTheme.ThemeDef selected = themes.get(position);
                 prefs.setThemeId(widgetType, selected.id);
                 updateThemeSpecsDisplay(selected);
+                updateFrostingCardVisibility(selected.id);
                 refreshPreview();
                 GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
             }
@@ -162,6 +175,45 @@ public class WidgetConfigActivity extends Activity {
                 spinnerThemes.setSelection(next);
             }
         });
+
+        btnSelectFrostedGlass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int frostedIdx = GlyphTheme.getThemeIndexById("frosted_glass");
+                spinnerThemes.setSelection(frostedIdx);
+            }
+        });
+    }
+
+    private void updateFrostingCardVisibility(String themeId) {
+        boolean isFrosted = GlyphTheme.isFrosted(themeId);
+        // Dim or highlight frosting card based on active theme
+        cardFrostedIntensity.setAlpha(isFrosted ? 1.0f : 0.45f);
+        seekFrostingIntensity.setEnabled(isFrosted);
+    }
+
+    private void initFrostingControls() {
+        int currentIntensity = prefs.getFrostingIntensity(widgetType);
+        seekFrostingIntensity.setProgress(currentIntensity);
+        textFrostingIntensityVal.setText(currentIntensity + " %");
+
+        seekFrostingIntensity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int clamped = Math.max(10, progress);
+                textFrostingIntensityVal.setText(clamped + " %");
+                prefs.setFrostingIntensity(widgetType, clamped);
+                refreshPreview();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+            }
+        });
     }
 
     private void updateThemeSpecsDisplay(GlyphTheme.ThemeDef theme) {
@@ -172,7 +224,7 @@ public class WidgetConfigActivity extends Activity {
         int clockColor2 = prefs.getClockColor2(widgetType);
 
         String specs = "Active Theme: " + theme.name + "\n"
-                + "• Background: " + String.format("#%06X", (0xFFFFFF & theme.backgroundColor)) + "\n"
+                + "• Background: " + (GlyphTheme.isFrosted(theme.id) ? "Frosted Glass Translucent" : String.format("#%06X", (0xFFFFFF & theme.backgroundColor))) + "\n"
                 + "• Border (1): " + String.format("#%06X", (0xFFFFFF & borderColor)) + "\n"
                 + "• Calendar Colors (2): "
                 + String.format("#%06X", (0xFFFFFF & calColor1)) + " / "

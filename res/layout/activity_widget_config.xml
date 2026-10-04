@@ -54,7 +54,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Live Canvas Preview (Theme &amp; Margins)"
+                android:text="Live Canvas Preview (Theme, Glass &amp; Margins)"
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -90,7 +90,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Select from 26 curated schemes. Storing defaults for Border (1), Calendar (2), and Clock (2)."
+                android:text="26th is Frosted Glass with dynamic intensity slider."
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
 
@@ -135,6 +135,17 @@
 
             </LinearLayout>
 
+            <!-- Quick Frosted Glass Shortcut Button -->
+            <Button
+                android:id="@+id/btn_select_frosted_glass"
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card"
+                android:text="Select 26. Frosted Glass"
+                android:textColor="@color/accent_blue"
+                android:textSize="13sp" />
+
             <!-- Theme Color Specs Display -->
             <TextView
                 android:id="@+id/text_theme_specs"
@@ -145,6 +156,59 @@
                 android:text="Theme Specs: Loading..."
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <!-- Frosted Glass Intensity Tuning Card -->
+        <LinearLayout
+            android:id="@+id/card_frosted_intensity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Frosting Intensity"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/text_frosting_intensity_val"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="45 %"
+                    android:textColor="@color/accent_blue"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Controls glass opacity, light diffusion, and specular rim brightness."
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <SeekBar
+                android:id="@+id/seek_frosting_intensity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:max="100" />
 
         </LinearLayout>
 

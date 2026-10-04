@@ -22,6 +22,7 @@ public class GlyphPrefs {
     public static final int DEFAULT_MARGIN_BOTTOM = 16;
     public static final int DEFAULT_CORNER_RADIUS = 36;
     public static final String DEFAULT_THEME_ID = "obsidian";
+    public static final int DEFAULT_FROSTING_INTENSITY = 45;
 
     public static final int NO_OVERRIDE_COLOR = -1;
 
@@ -39,6 +40,14 @@ public class GlyphPrefs {
 
     public void setThemeId(String widgetType, String themeId) {
         prefs.edit().putString(widgetType + "_theme_id", themeId).apply();
+    }
+
+    public int getFrostingIntensity(String widgetType) {
+        return prefs.getInt(widgetType + "_frosting_intensity", DEFAULT_FROSTING_INTENSITY);
+    }
+
+    public void setFrostingIntensity(String widgetType, int intensity) {
+        prefs.edit().putInt(widgetType + "_frosting_intensity", intensity).apply();
     }
 
     public GlyphTheme.ThemeDef getTheme(String widgetType) {

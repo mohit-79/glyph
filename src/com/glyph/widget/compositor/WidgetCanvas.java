@@ -5,15 +5,17 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.Shader;
 import com.glyph.widget.GlyphPrefs;
 import com.glyph.widget.GlyphTheme;
 
 /**
  * WidgetCanvas renders 2D Canvas bitmaps for both launcher RemoteViews
  * and in-app real-time previews, strictly enforcing per-widget margins, themes,
- * and stored colors for border, calendar, and clock.
+ * frosted glass liquid shader intensity, and stored colors.
  */
 public class WidgetCanvas {
 
@@ -55,17 +57,37 @@ public class WidgetCanvas {
         // Outer transparent background
         canvas.drawColor(Color.TRANSPARENT);
 
-        // Fill background pill with theme background color
         Paint bgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        bgPaint.setColor(theme.backgroundColor);
         bgPaint.setStyle(Paint.Style.FILL);
-        canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, bgPaint);
 
-        // Draw border with stored border color
         Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        borderPaint.setColor(borderColor);
         borderPaint.setStyle(Paint.Style.STROKE);
         borderPaint.setStrokeWidth(3.5f * scale);
+
+        boolean isFrosted = GlyphTheme.isFrosted(theme.id);
+        if (isFrosted) {
+            int intensity = prefs.getFrostingIntensity(widgetType);
+            float ratio = Math.max(0.1f, Math.min(1.0f, intensity / 100f));
+            int baseAlpha = (int) (ratio * 190f);
+            int topAlpha = Math.min(255, (int) (baseAlpha * 1.35f));
+            int bottomAlpha = Math.max(15, (int) (baseAlpha * 0.70f));
+
+            int topColor = Color.argb(topAlpha, 255, 255, 255);
+            int bottomColor = Color.argb(bottomAlpha, 210, 225, 245);
+
+            bgPaint.setShader(new LinearGradient(
+                    pillRect.centerX(), pillRect.top,
+                    pillRect.centerX(), pillRect.bottom,
+                    topColor, bottomColor, Shader.TileMode.CLAMP));
+
+            int rimAlpha = Math.min(255, (int) (ratio * 160f) + 75);
+            borderPaint.setColor(Color.argb(rimAlpha, 255, 255, 255));
+        } else {
+            bgPaint.setColor(theme.backgroundColor);
+            borderPaint.setColor(borderColor);
+        }
+
+        canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, bgPaint);
         canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, borderPaint);
 
         float centerX = pillRect.centerX();
@@ -77,7 +99,8 @@ public class WidgetCanvas {
         titlePaint.setTextSize(26f * scale);
         titlePaint.setTextAlign(Paint.Align.CENTER);
         titlePaint.setFakeBoldText(true);
-        canvas.drawText(theme.name.toUpperCase(), centerX, centerY - (18f * scale), titlePaint);
+        String displayTitle = isFrosted ? ("FROSTED GLASS " + prefs.getFrostingIntensity(widgetType) + "%") : theme.name.toUpperCase();
+        canvas.drawText(displayTitle, centerX, centerY - (18f * scale), titlePaint);
 
         // Stored Clock Colors indicator
         Paint clockIndicatorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -125,8 +148,8 @@ public class WidgetCanvas {
     }
 
     /**
-     * Renders the interactive preview bitmap with a dashed cell boundary
-     * and the active theme's colors.
+     * Renders the interactive preview bitmap with a dashed cell boundary,
+     * background pattern for frosted translucency verification, and the active theme.
      */
     public static Bitmap renderPreview(int width, int height, GlyphPrefs prefs, String widgetType) {
         if (width <= 0) width = 720;
@@ -144,9 +167,21 @@ public class WidgetCanvas {
         int clockColor1 = prefs.getClockColor1(widgetType);
         int clockColor2 = prefs.getClockColor2(widgetType);
 
+        // Preview background with wallpaper grid stripes to clearly see glass translucency
+        Paint bgCanvasPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        bgCanvasPaint.setColor(Color.parseColor("#0F131C"));
+        canvas.drawRect(0, 0, width, height, bgCanvasPaint);
+
+        Paint patternPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        patternPaint.setColor(Color.parseColor("#182030"));
+        patternPaint.setStrokeWidth(1.5f * scale);
+        for (float x = 20f * scale; x < width; x += 36f * scale) {
+            canvas.drawLine(x, 0, x, height, patternPaint);
+        }
+
         // Faint outer bounds representing home screen cell boundary
         Paint cellBoundaryPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        cellBoundaryPaint.setColor(Color.parseColor("#2A3142"));
+        cellBoundaryPaint.setColor(Color.parseColor("#384257"));
         cellBoundaryPaint.setStyle(Paint.Style.STROKE);
         cellBoundaryPaint.setStrokeWidth(1.5f * scale);
         cellBoundaryPaint.setPathEffect(new DashPathEffect(new float[]{10f * scale, 8f * scale}, 0));
@@ -171,17 +206,37 @@ public class WidgetCanvas {
 
         RectF pillRect = new RectF(pillLeft, pillTop, pillRight, pillBottom);
 
-        // Fill pill
         Paint bgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        bgPaint.setColor(theme.backgroundColor);
         bgPaint.setStyle(Paint.Style.FILL);
-        canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, bgPaint);
 
-        // Pill border
         Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        borderPaint.setColor(borderColor);
         borderPaint.setStyle(Paint.Style.STROKE);
         borderPaint.setStrokeWidth(3f * scale);
+
+        boolean isFrosted = GlyphTheme.isFrosted(theme.id);
+        if (isFrosted) {
+            int intensity = prefs.getFrostingIntensity(widgetType);
+            float ratio = Math.max(0.1f, Math.min(1.0f, intensity / 100f));
+            int baseAlpha = (int) (ratio * 190f);
+            int topAlpha = Math.min(255, (int) (baseAlpha * 1.35f));
+            int bottomAlpha = Math.max(15, (int) (baseAlpha * 0.70f));
+
+            int topColor = Color.argb(topAlpha, 255, 255, 255);
+            int bottomColor = Color.argb(bottomAlpha, 210, 225, 245);
+
+            bgPaint.setShader(new LinearGradient(
+                    pillRect.centerX(), pillRect.top,
+                    pillRect.centerX(), pillRect.bottom,
+                    topColor, bottomColor, Shader.TileMode.CLAMP));
+
+            int rimAlpha = Math.min(255, (int) (ratio * 160f) + 75);
+            borderPaint.setColor(Color.argb(rimAlpha, 255, 255, 255));
+        } else {
+            bgPaint.setColor(theme.backgroundColor);
+            borderPaint.setColor(borderColor);
+        }
+
+        canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, bgPaint);
         canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, borderPaint);
 
         float centerX = pillRect.centerX();
@@ -193,7 +248,8 @@ public class WidgetCanvas {
         titlePaint.setTextSize(24f * scale);
         titlePaint.setTextAlign(Paint.Align.CENTER);
         titlePaint.setFakeBoldText(true);
-        canvas.drawText(theme.name, centerX, centerY - (14f * scale), titlePaint);
+        String previewTitle = isFrosted ? ("FROSTED GLASS (" + prefs.getFrostingIntensity(widgetType) + "%)") : theme.name;
+        canvas.drawText(previewTitle, centerX, centerY - (14f * scale), titlePaint);
 
         // Stored color values display
         Paint subPaint = new Paint(Paint.ANTI_ALIAS_FLAG);

@@ -141,9 +141,13 @@ public class GlyphTheme {
         THEMES.add(new ThemeDef("aurora", "Aurora Borealis",
                 "#071E22", "#1D7874", "#EEF5DB", "#679267", "#FFFFFF", "#00F5D4"));
 
-        // 26. Electric Violet
-        THEMES.add(new ThemeDef("electric_violet", "Electric Violet",
-                "#120924", "#4C1D95", "#EDE9FE", "#A78BFA", "#F5F3FF", "#7C3AED"));
+        // 26. Frosted Glass (Liquid Glass with Translucency & Specular Rim)
+        THEMES.add(new ThemeDef("frosted_glass", "Frosted Glass",
+                "#2AFFFFFF", "#66FFFFFF", "#FFFFFF", "#E2E8F0", "#FFFFFF", "#93C5FD"));
+    }
+
+    public static boolean isFrosted(String themeId) {
+        return "frosted_glass".equals(themeId);
     }
 
     public static List<ThemeDef> getAllThemes() {
