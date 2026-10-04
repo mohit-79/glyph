@@ -10,46 +10,94 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- App Header -->
-        <TextView
-            android:id="@+id/text_app_title"
-            android:layout_width="wrap_content"
+        <!-- Top Header Bar with Logo, Title, and Coffee Icon -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/app_name"
-            android:textColor="@color/text_primary"
-            android:textSize="32sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/text_app_tagline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/app_tagline"
-            android:textColor="@color/text_secondary"
-            android:textSize="15sp" />
+            <!-- Mr. Bean Cartoon Teddy Logo Avatar -->
+            <ImageView
+                android:id="@+id/img_app_logo"
+                android:layout_width="46dp"
+                android:layout_height="46dp"
+                android:background="@drawable/btn_icon_bg"
+                android:contentDescription="Glyph Logo"
+                android:padding="5dp"
+                android:src="@drawable/teddy_cartoon" />
 
+            <!-- Title & Tagline in Nothing OS Aesthetic -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text_app_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0.15"
+                    android:text="GLYPH"
+                    android:textColor="@color/text_primary"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/text_app_tagline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0.08"
+                    android:text="WIDGET STUDIO"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Buy Me A Coffee Button -->
+            <ImageButton
+                android:id="@+id/btn_coffee"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/btn_icon_bg"
+                android:contentDescription="Buy Me a Coffee"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_coffee" />
+
+        </LinearLayout>
+
+        <!-- Version Badge -->
         <TextView
             android:id="@+id/text_version"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="v1.0.0 (Commit 4.1 Multi-Widget Architecture)"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_badge"
+            android:paddingStart="10dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="4dp"
+            android:text="v1.1.0 • Teddy Edition"
             android:textColor="@color/accent_blue"
-            android:textSize="12sp" />
+            android:textSize="11sp"
+            android:textStyle="bold" />
 
         <!-- Available Widgets Section Header -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="24dp"
+            android:letterSpacing="0.05"
             android:text="@string/section_widgets"
             android:textColor="@color/text_primary"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
-        <!-- Widget Item 1: Clock & Calendar -->
+        <!-- Widget Item 1: Clock & Calendar Studio -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -70,14 +118,14 @@
                     android:layout_weight="1"
                     android:text="@string/widget_clock_calendar_name"
                     android:textColor="@color/text_primary"
-                    android:textSize="18sp"
+                    android:textSize="17sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/text_clock_calendar_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/ic_launcher"
+                    android:background="@drawable/bg_badge"
                     android:paddingStart="8dp"
                     android:paddingTop="3dp"
                     android:paddingEnd="8dp"
@@ -111,8 +159,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/bg_card"
-                android:text="Customize Pill &amp; Margins"
+                android:background="@drawable/bg_badge"
+                android:text="Open Customizer Studio"
                 android:textColor="@color/accent_blue"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -129,15 +177,14 @@
 
         </LinearLayout>
 
-        <!-- Future Extensible Widget Architecture Slot -->
+        <!-- Quick Support / Creator Card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:layout_marginBottom="32dp"
             android:background="@drawable/bg_card"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -149,33 +196,62 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Multi-Widget Slot (Extensible)"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="16sp"
+                    android:text="Support &amp; Community"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/btn_quick_coffee"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_card"
+                    android:background="@drawable/bg_badge"
                     android:paddingStart="8dp"
                     android:paddingTop="3dp"
                     android:paddingEnd="8dp"
                     android:paddingBottom="3dp"
-                    android:text="Future"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
-
+                    android:text="Buy Coffee"
+                    android:textColor="#F59E0B"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:lineSpacingMultiplier="1.2"
-                android:text="All widgets are strictly isolated. Each widget controls its own margins, themes, and dimensions independently without cross-affecting other widgets."
+                android:layout_marginTop="6dp"
+                android:text="Developed by Mohit Harjani. Tap coffee icon to support via UPI, connect, or star on GitHub."
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <!-- Future Extensible Widget Architecture Slot -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Independent Widget Architecture"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:lineSpacingMultiplier="1.2"
+                android:text="Each widget instance isolates its own margins, themes, dimensions, and click actions without cross-contamination."
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp" />
 
         </LinearLayout>
 

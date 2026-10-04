@@ -13,6 +13,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -187,6 +189,7 @@ public class WidgetConfigActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        applySystemBarTheme();
         setContentView(R.layout.activity_widget_config);
 
         String passedType = getIntent().getStringExtra(EXTRA_WIDGET_TYPE);
@@ -196,6 +199,7 @@ public class WidgetConfigActivity extends Activity {
 
         prefs = new GlyphPrefs(this);
         bindViews();
+        setupCategoryAccordion();
         initThemes();
         initGlassControls();
         initBorderControls();
@@ -206,6 +210,64 @@ public class WidgetConfigActivity extends Activity {
         initControls();
         initClickActionControls();
         refreshPreview();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        applySystemBarTheme();
+    }
+
+    private void applySystemBarTheme() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.setStatusBarColor(0xFF0D0F14);
+            window.setNavigationBarColor(0xFF0D0F14);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                View decor = window.getDecorView();
+                int flags = decor.getSystemUiVisibility();
+                flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                decor.setSystemUiVisibility(flags);
+            }
+        }
+    }
+
+    private void setupCategoryAccordion() {
+        setupCategoryToggle(R.id.header_cat_themes, R.id.content_cat_themes, R.id.badge_cat_themes, true);
+        setupCategoryToggle(R.id.header_cat_clock, R.id.content_cat_clock, R.id.badge_cat_clock, false);
+        setupCategoryToggle(R.id.header_cat_calendar, R.id.content_cat_calendar, R.id.badge_cat_calendar, false);
+        setupCategoryToggle(R.id.header_cat_frame, R.id.content_cat_frame, R.id.badge_cat_frame, false);
+        setupCategoryToggle(R.id.header_cat_touch, R.id.content_cat_touch, R.id.badge_cat_touch, false);
+    }
+
+    private void setupCategoryToggle(int headerId, final int contentId, final int badgeId, boolean initialOpen) {
+        View header = findViewById(headerId);
+        final View content = findViewById(contentId);
+        final TextView badge = (TextView) findViewById(badgeId);
+        if (header == null || content == null || badge == null) return;
+
+        updateCategoryState(content, badge, initialOpen);
+
+        header.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isOpen = (content.getVisibility() == View.VISIBLE);
+                updateCategoryState(content, badge, !isOpen);
+            }
+        });
+    }
+
+    private void updateCategoryState(View content, TextView badge, boolean open) {
+        content.setVisibility(open ? View.VISIBLE : View.GONE);
+        if (open) {
+            badge.setText("OPEN");
+            badge.setTextColor(0xFF3B82F6);
+        } else {
+            badge.setText("EXPAND");
+            badge.setTextColor(0xFF8A99AD);
+        }
     }
 
     private void bindViews() {

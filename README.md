@@ -16,31 +16,41 @@ glyph/
 ├── README.md                            # Project documentation and architectural guide
 ├── build.sh                             # Compilation, dexing, packaging, and signing pipeline
 ├── debug.keystore                       # Development signing keystore
+├── assets/                              # Packaged application assets
+│   └── fonts/                           # Typographic font families
+│       └── ndot55.otf                   # Authentic Nothing OS dot-matrix typeface
 ├── res/                                 # Packaged application resources
 │   ├── drawable/                        # Vector assets and background card drawables
 │   │   ├── bg_card.xml                  # Rounded card container style
-│   │   ├── ic_launcher.xml              # Vector launcher icon
+│   │   ├── bg_badge.xml                 # Rounded status badge style
+│   │   ├── btn_icon_bg.xml              # Circular button background style
+│   │   ├── ic_coffee.xml                # Buy me a coffee vector icon
+│   │   ├── teddy_cartoon.png            # Authentic Mr. Bean Animated Series Teddy asset
 │   │   └── widget_preview.xml           # Launcher widget preview asset
 │   ├── layout/                          # UI layout hierarchies
-│   │   ├── activity_main.xml            # Multi-widget hub and selector dashboard
-│   │   ├── activity_widget_config.xml   # Dedicated per-widget live customization studio
+│   │   ├── activity_main.xml            # Nothing OS styled multi-widget hub & coffee modal
+│   │   ├── activity_widget_config.xml   # Categorized 5-section dropdown customization studio
+│   │   ├── dialog_coffee.xml            # Buy me a coffee modal dialog (UPI, Contact, GitHub)
 │   │   └── widget_clock_calendar.xml    # RemoteViews container for launcher instances
+│   ├── mipmap-*/                        # High-resolution launcher icons across all screen densities
+│   │   └── ic_launcher.png              # Mr. Bean Teddy launcher icon (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi)
 │   ├── values/                          # Scalar values
 │   │   ├── colors.xml                   # Semantic color definitions
-│   │   └── strings.xml                  # Application strings and labels
+│   │   ├── strings.xml                  # Application strings and labels
+│   │   └── styles.xml                   # Seamless edge-to-edge dark theme with status bar coloring
 │   └── xml/                             # System metadata descriptors
 │       └── glyph_clock_calendar_widget_info.xml # AppWidgetProviderInfo configuration
 └── src/                                 # Java source code
     └── com/glyph/widget/
         ├── MainActivity.java            # Multi-widget hub launching isolated customization studios
-        ├── WidgetConfigActivity.java    # Interactive customizer with live canvas preview
+        ├── WidgetConfigActivity.java    # Interactive customizer with live canvas preview & accordion categories
         ├── GlyphWidgetProvider.java     # BroadcastReceiver managing widget lifecycle and updates
         ├── GlyphPrefs.java              # Namespaced SharedPreferences state persistence engine
         ├── GlyphTheme.java              # Catalog of 27 curated color palettes and theme matrices
         └── compositor/                  # Pure 2D Canvas rendering engine
             ├── WidgetCanvas.java        # High-DPI bitmap compositor and pill geometry engine
             ├── CalendarRenderer.java    # Dynamic live-date calendar with 2D transform matrix
-            ├── ClockRenderer.java       # Single-line live digital clock with 2D transform matrix
+            ├── ClockRenderer.java       # Single-Line live digital clock with 2D transform matrix
             ├── FastBlur.java            # Dual-pass optical StackBlur algorithm implementation
             └── WallpaperHelper.java     # System wallpaper sampler, gallery picker, and coordinate slicer
 ```
@@ -186,6 +196,21 @@ Contains 27 curated themes with coordinated colors for backgrounds, borders, and
 26. Withering Glass (Dark smoked obsidian glass with soft translucency)
 27. Frosted Glass (100% transparent widget with pure optical blur and zero white tint)
 
+### 11. Mr. Bean Teddy Logo, Dropdown Accordion Studio, Developer Support & Status Bar Theming
+* **Authentic Mr. Bean Cartoon Teddy Logo**: High-fidelity launcher icon across all screen densities (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi) featuring the iconic Teddy bear from the Mr. Bean Animated Series, rendered on launcher home screens and within the app header.
+* **Categorized Dropdown Accordion UI**: Organizes the extensive customizer studio into 5 clean, collapsible category cards with dynamic "OPEN" / "EXPAND" indicator badges:
+  1. Themes & Glass Engine (27 presets, optical blur, opacity, specular highlight)
+  2. Clock Studio & Gamut (Position, scale, 12h/24h toggle, two-tone hour & minute sRGB gamut)
+  3. Calendar Studio & Gamut (Position, scale, 11 artistic styles, two-tone day & month sRGB gamut)
+  4. Frame, Margins & Borders (Border thickness, sRGB gamut, 4-side margins, corner radius)
+  5. Widget Tap Gestures (Clock & calendar touch behaviors: apps, themes, animations, inert)
+* **Nothing OS Dot-Matrix Typography**: The entry page header prominently displays "GLYPH" in the authentic Nothing OS dot-matrix typeface (`ndot55.otf`) loaded dynamically from application assets.
+* **Buy Me a Coffee & Developer Support Modal**: Dedicated coffee cup action on the top right of the entry page opening an interactive modal supporting:
+  - UPI ID (`mohitharjani79@oksbi`) with 1-tap clipboard copy and direct UPI app payment intent.
+  - Developer contact (`mohitharjani79@gmail.com`) with 1-tap email launch and clipboard copy.
+  - Open source repository (`https://github.com/mohit-79/glyph`) with direct browser launch to star on GitHub.
+* **Seamless Status & System Bar Theming**: Programmatic window flag configuration (`FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS`) and dark status/navigation bar coloring (`#0D0F14`) eliminating color mismatches between system notification bars and the application surface across all Android versions and OEM skins.
+
 ---
 
 ## Build Pipeline & Toolchain
@@ -238,4 +263,4 @@ The output APK is compiled, dexed, aligned, and signed with `debug.keystore`, pr
 * [x] **Commit 12**: Multiple Artistic Clock Styles (12 Distinct Aesthetic Variants)
 * [x] **Commit 13**: Clock Two-Tone sRGB Gamut Customizer
 * [x] **Commit 15**: Widget Click Actions for Clock & Calendar (Inert, Open App, Cycle Themes, Style Animation)
-* [ ] **Commit 16**: In-App UI/UX Aesthetic Redesign
+* [x] **Commit 16**: Mr. Bean Cartoon Teddy Logo, Categorized Dropdown Settings UI, Coffee Support, Nothing OS Typography & Status Bar Theming
