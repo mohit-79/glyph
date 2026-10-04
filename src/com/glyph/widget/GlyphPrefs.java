@@ -265,6 +265,20 @@ public class GlyphPrefs {
         prefs.edit().putInt(widgetType + "_cal_scale", val).apply();
     }
 
+    public static final int DEFAULT_CALENDAR_STYLE = 0;
+
+    public int getCalendarStyle(String widgetType) {
+        return prefs.getInt(widgetType + "_cal_style", DEFAULT_CALENDAR_STYLE);
+    }
+
+    public void setCalendarStyle(String widgetType, int style) {
+        prefs.edit().putInt(widgetType + "_cal_style", style).apply();
+    }
+
+    public void resetCalendarStyle(String widgetType) {
+        prefs.edit().remove(widgetType + "_cal_style").apply();
+    }
+
     public void resetCalendarTransform(String widgetType) {
         prefs.edit()
                 .putInt(widgetType + "_cal_x", DEFAULT_CALENDAR_X)
@@ -272,6 +286,7 @@ public class GlyphPrefs {
                 .putInt(widgetType + "_cal_scale", DEFAULT_CALENDAR_SCALE)
                 .apply();
     }
+
 
     // --- Backward Compatible Overloads (defaults to Clock & Calendar) ---
     public int getMarginLeft() { return getMarginLeft(WIDGET_CLOCK_CALENDAR); }

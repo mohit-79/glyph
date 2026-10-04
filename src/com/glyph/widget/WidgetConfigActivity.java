@@ -19,6 +19,7 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.glyph.widget.compositor.CalendarRenderer;
 import com.glyph.widget.compositor.WallpaperHelper;
 import com.glyph.widget.compositor.WidgetCanvas;
 import java.util.ArrayList;
@@ -78,7 +79,12 @@ public class WidgetConfigActivity extends Activity {
     private TextView textValueVal;
     private boolean isUpdatingBorderFromCode = false;
 
-    // Calendar Transform fields
+    // Calendar Studio (Styles & Transform) fields
+    private Spinner spinnerCalStyle;
+    private TextView textCalStyleCounter;
+    private TextView textCalStyleDesc;
+    private Button btnPrevCalStyle;
+    private Button btnNextCalStyle;
     private SeekBar seekCalX;
     private TextView textCalXVal;
     private SeekBar seekCalY;
@@ -119,7 +125,7 @@ public class WidgetConfigActivity extends Activity {
         initThemes();
         initGlassControls();
         initBorderControls();
-        initCalendarTransformControls();
+        initCalendarStudioControls();
         initControls();
         refreshPreview();
     }
@@ -162,6 +168,12 @@ public class WidgetConfigActivity extends Activity {
         textSaturationVal = (TextView) findViewById(R.id.text_saturation_val);
         seekValue = (SeekBar) findViewById(R.id.seek_value);
         textValueVal = (TextView) findViewById(R.id.text_value_val);
+
+        spinnerCalStyle = (Spinner) findViewById(R.id.spinner_cal_style);
+        textCalStyleCounter = (TextView) findViewById(R.id.text_cal_style_counter);
+        textCalStyleDesc = (TextView) findViewById(R.id.text_cal_style_desc);
+        btnPrevCalStyle = (Button) findViewById(R.id.btn_prev_cal_style);
+        btnNextCalStyle = (Button) findViewById(R.id.btn_next_cal_style);
 
         seekCalX = (SeekBar) findViewById(R.id.seek_cal_x);
         textCalXVal = (TextView) findViewById(R.id.text_cal_x_val);
@@ -628,7 +640,58 @@ public class WidgetConfigActivity extends Activity {
         isUpdatingBorderFromCode = false;
     }
 
-    private void initCalendarTransformControls() {
+    private void initCalendarStudioControls() {
+        // 1. Calendar Style Selector
+        List<String> styleLabels = new ArrayList<String>();
+        for (int i = 0; i < CalendarRenderer.STYLE_COUNT; i++) {
+            styleLabels.add((i + 1) + ". " + CalendarRenderer.STYLE_NAMES[i]);
+        }
+
+        ArrayAdapter<String> styleAdapter = new ArrayAdapter<String>(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                styleLabels
+        );
+        spinnerCalStyle.setAdapter(styleAdapter);
+
+        int currentStyle = Math.max(0, Math.min(CalendarRenderer.STYLE_COUNT - 1, prefs.getCalendarStyle(widgetType)));
+        spinnerCalStyle.setSelection(currentStyle);
+        updateCalendarStyleDisplay(currentStyle);
+
+        spinnerCalStyle.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (prefs.getCalendarStyle(widgetType) != position) {
+                    prefs.setCalendarStyle(widgetType, position);
+                    updateCalendarStyleDisplay(position);
+                    refreshPreview();
+                    GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        btnPrevCalStyle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int cur = spinnerCalStyle.getSelectedItemPosition();
+                int prev = (cur > 0) ? cur - 1 : CalendarRenderer.STYLE_COUNT - 1;
+                spinnerCalStyle.setSelection(prev);
+            }
+        });
+
+        btnNextCalStyle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int cur = spinnerCalStyle.getSelectedItemPosition();
+                int next = (cur < CalendarRenderer.STYLE_COUNT - 1) ? cur + 1 : 0;
+                spinnerCalStyle.setSelection(next);
+            }
+        });
+
+        // 2. Continuous Translation & Scale Zoom Controls
         int calX = prefs.getCalendarX(widgetType);
         int calY = prefs.getCalendarY(widgetType);
         int calScale = prefs.getCalendarScale(widgetType);
@@ -700,12 +763,29 @@ public class WidgetConfigActivity extends Activity {
             @Override
             public void onClick(View v) {
                 prefs.resetCalendarTransform(widgetType);
-                initCalendarTransformControls();
+                int calX = prefs.getCalendarX(widgetType);
+                int calY = prefs.getCalendarY(widgetType);
+                int calScale = prefs.getCalendarScale(widgetType);
+                seekCalX.setProgress(calX + 120);
+                updateCalXDisplay(calX);
+                seekCalY.setProgress(calY + 80);
+                updateCalYDisplay(calY);
+                seekCalScale.setProgress(calScale - 50);
+                textCalScaleVal.setText(calScale + "%");
                 refreshPreview();
                 GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
                 Toast.makeText(WidgetConfigActivity.this, "Reset calendar position & scale", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void updateCalendarStyleDisplay(int index) {
+        if (textCalStyleCounter != null) {
+            textCalStyleCounter.setText((index + 1) + " / " + CalendarRenderer.STYLE_COUNT);
+        }
+        if (textCalStyleDesc != null) {
+            textCalStyleDesc.setText(CalendarRenderer.STYLE_DESCRIPTIONS[index]);
+        }
     }
 
     private void updateCalXDisplay(int x) {

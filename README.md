@@ -73,14 +73,25 @@ Because Android security sandboxing prevents widgets from capturing home screen 
 * **Frosted Fallback**: When wallpaper is unsynced, renders a delicate frosted diffusion shader so widgets remain readable.
 
 ### 4. Live 2D Calendar Engine (`CalendarRenderer.java`)
-Draws an authentic, real-time monthly calendar directly onto the 2D canvas:
+Draws an authentic, real-time monthly calendar directly onto the 2D canvas with mathematical precision and support for 11 distinct artistic reference styles:
 * Calculates the active month, total days, first-day-of-week offset, and current day index.
-* Renders day-of-week initials and date grid numbers.
-* Highlights the current active date with a circular badge and computes automatic high-contrast foreground text colors.
-* Supports continuous in-app transformations:
+* **11 Distinct Artistic Styles**:
+  1. **Pill Range**: Curved horizontal capsule pill embracing the active week range with dynamic range bounds.
+  2. **Circle Bubble Cluster**: Dual-state translucent circular bubble tiles with filled pop badge and weekend outlines.
+  3. **Clean Monospace**: Minimalist high-fashion typographic grid with monospace alignment and horizontal hairline rule.
+  4. **Neomorphic Frosted Card**: Soft frosted sub-card backing with recessed header pill and elevated date badges.
+  5. **Modular Rounded Square Grid**: Individual rounded square tile matrix with uniform spacing and subtle border strokes.
+  6. **Inset Sunken Dial Hybrid**: Asymmetric layout with a sunken circular month-progress dial gauge on the left and a compact calendar grid on the right.
+  7. **Dotted Accent Calendar**: Micro-dot matrix indicators under each date with concentric ring active badge.
+  8. **Compact Headerless**: Dense glanceable layout with expanded bold date numerals and clean dual-tag status line.
+  9. **Segmented Row Focus**: High-contrast week-row focus container with dimmed context weeks for rapid temporal awareness.
+  10. **High-Contrast Dark Grid**: Graphic circular badges distinguishing past, future, and active dates with dual-ring badges.
+  11. **Modern Sans Grid**: Clean geometric sans typography with two vertical tinted accent columns behind weekend days.
+* **Continuous Transformations**:
   * Horizontal Position (X): -120dp to +120dp
   * Vertical Position (Y): -80dp to +80dp
   * Calendar Scale (Zoom): 50% to 180%
+* In-app interactive style selector with previous/next quick-cycling buttons and live descriptions.
 * One-tap reset button to restore default positioning and scale.
 
 ### 5. Border Studio & Full sRGB Color Gamut Picker
@@ -165,7 +176,7 @@ The output APK is compiled, dexed, aligned, and signed with `debug.keystore`, pr
 * [x] **Commit 5.2**: Wallpaper-Aligned Optical Blur Engine & Dynamic Glass Controls
 * [x] **Commit 7**: Border Customizer (0 to 16dp Thickness, sRGB HSV Spectrum & Quick Palette)
 * [x] **Commit 8**: Dynamic 2D Calendar Foundation with Live Dates & Continuous (X, Y, Scale) Transforms
-* [ ] **Commit 9**: Multiple Artistic Calendar Styles (11 Distinct Aesthetic Variants)
+* [x] **Commit 9**: Multiple Artistic Calendar Styles (11 Distinct Aesthetic Variants)
 * [ ] **Commit 10**: Two-Tone Calendar sRGB Gamut Customizer
 * [ ] **Commit 11**: Movable & Resizable Test Clock Foundation
 * [ ] **Commit 12**: Multiple Artistic Clock Styles (12 Distinct Aesthetic Variants)

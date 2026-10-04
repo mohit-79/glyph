@@ -146,11 +146,13 @@ public class WidgetCanvas {
         int calX = prefs.getCalendarX(widgetType);
         int calY = prefs.getCalendarY(widgetType);
         int calScale = prefs.getCalendarScale(widgetType);
+        int calStyle = prefs.getCalendarStyle(widgetType);
 
         CalendarRenderer.drawCalendar(
                 canvas, pillRect, scale,
                 calX, calY, calScale,
-                calColor1, calColor2
+                calColor1, calColor2,
+                calStyle
         );
 
         // 2. Compact Theme & Engine Header
