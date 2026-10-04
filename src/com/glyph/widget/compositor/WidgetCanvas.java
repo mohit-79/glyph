@@ -41,8 +41,6 @@ public class WidgetCanvas {
         int borderColor = prefs.getBorderColor(widgetType);
         int calColor1 = prefs.getCalendarColor1(widgetType);
         int calColor2 = prefs.getCalendarColor2(widgetType);
-        int clockColor1 = prefs.getClockColor1(widgetType);
-        int clockColor2 = prefs.getClockColor2(widgetType);
 
         float marginLeft = prefs.getMarginLeft(widgetType) * scale;
         float marginTop = prefs.getMarginTop(widgetType) * scale;
@@ -155,54 +153,7 @@ public class WidgetCanvas {
                 calStyle
         );
 
-        // 2. Compact Theme & Engine Header
-        Paint titlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        titlePaint.setColor(clockColor1);
-        titlePaint.setTextSize(11f * scale);
-        titlePaint.setTextAlign(Paint.Align.RIGHT);
-        titlePaint.setFakeBoldText(true);
-
-        String displayTitle;
-        if (isFrosted) {
-            displayTitle = "FROSTED GLASS (" + prefs.getBlurIntensity(widgetType) + "PX)";
-        } else if (isWithering) {
-            displayTitle = "WITHERING GLASS " + prefs.getFrostingIntensity(widgetType) + "%";
-        } else {
-            displayTitle = theme.name.toUpperCase();
-        }
-        canvas.drawText(displayTitle, pillRect.right - (16f * scale), pillRect.top + (20f * scale), titlePaint);
-
-        Paint clockIndicatorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        clockIndicatorPaint.setColor(clockColor2);
-        clockIndicatorPaint.setTextSize(9f * scale);
-        clockIndicatorPaint.setTextAlign(Paint.Align.RIGHT);
-        canvas.drawText("Clock Engine (Commit 11)", pillRect.right - (16f * scale), pillRect.top + (34f * scale), clockIndicatorPaint);
-
-        // 3. Compact Swatches in corner
-        float swatchY = pillRect.bottom - (14f * scale);
-        float swatchRadius = 4.5f * scale;
-        float spacing = 16f * scale;
-        float startX = pillRect.right - (spacing * 3.5f) - (8f * scale);
-
-        drawSwatch(canvas, startX, swatchY, swatchRadius, calColor1, scale);
-        drawSwatch(canvas, startX + spacing, swatchY, swatchRadius, calColor2, scale);
-        drawSwatch(canvas, startX + (spacing * 2), swatchY, swatchRadius, clockColor1, scale);
-        drawSwatch(canvas, startX + (spacing * 3), swatchY, swatchRadius, clockColor2, scale);
-
         return bitmap;
-    }
-
-    private static void drawSwatch(Canvas canvas, float cx, float cy, float radius, int color, float scale) {
-        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-        p.setStyle(Paint.Style.FILL);
-        p.setColor(color);
-        canvas.drawCircle(cx, cy, radius, p);
-
-        Paint stroke = new Paint(Paint.ANTI_ALIAS_FLAG);
-        stroke.setStyle(Paint.Style.STROKE);
-        stroke.setStrokeWidth(1.2f * scale);
-        stroke.setColor(Color.WHITE);
-        canvas.drawCircle(cx, cy, radius, stroke);
     }
 
     public static Bitmap renderWidget(Context context, int width, int height, GlyphPrefs prefs) {
@@ -225,8 +176,6 @@ public class WidgetCanvas {
         int borderColor = prefs.getBorderColor(widgetType);
         int calColor1 = prefs.getCalendarColor1(widgetType);
         int calColor2 = prefs.getCalendarColor2(widgetType);
-        int clockColor1 = prefs.getClockColor1(widgetType);
-        int clockColor2 = prefs.getClockColor2(widgetType);
 
         Bitmap cachedWp = (context != null) ? WallpaperHelper.getCachedWallpaper(context) : null;
         if (cachedWp != null && !cachedWp.isRecycled()) {
@@ -384,46 +333,14 @@ public class WidgetCanvas {
         int calX = prefs.getCalendarX(widgetType);
         int calY = prefs.getCalendarY(widgetType);
         int calScale = prefs.getCalendarScale(widgetType);
+        int calStyle = prefs.getCalendarStyle(widgetType);
 
         CalendarRenderer.drawCalendar(
                 canvas, pillRect, scale,
                 calX, calY, calScale,
-                calColor1, calColor2
+                calColor1, calColor2,
+                calStyle
         );
-
-        // 2. Compact Theme & Engine Header
-        Paint titlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        titlePaint.setColor(clockColor1);
-        titlePaint.setTextSize(11f * scale);
-        titlePaint.setTextAlign(Paint.Align.RIGHT);
-        titlePaint.setFakeBoldText(true);
-
-        String previewTitle;
-        if (isFrosted) {
-            previewTitle = "FROSTED GLASS (" + prefs.getBlurIntensity(widgetType) + "PX)";
-        } else if (isWithering) {
-            previewTitle = "WITHERING GLASS " + prefs.getFrostingIntensity(widgetType) + "%";
-        } else {
-            previewTitle = theme.name.toUpperCase();
-        }
-        canvas.drawText(previewTitle, pillRect.right - (16f * scale), pillRect.top + (20f * scale), titlePaint);
-
-        Paint clockIndicatorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        clockIndicatorPaint.setColor(clockColor2);
-        clockIndicatorPaint.setTextSize(9f * scale);
-        clockIndicatorPaint.setTextAlign(Paint.Align.RIGHT);
-        canvas.drawText("Clock Engine (Commit 11)", pillRect.right - (16f * scale), pillRect.top + (34f * scale), clockIndicatorPaint);
-
-        // 3. Compact Swatches in corner
-        float swatchY = pillRect.bottom - (14f * scale);
-        float swatchRadius = 4.5f * scale;
-        float spacing = 16f * scale;
-        float startX = pillRect.right - (spacing * 3.5f) - (8f * scale);
-
-        drawSwatch(canvas, startX, swatchY, swatchRadius, calColor1, scale);
-        drawSwatch(canvas, startX + spacing, swatchY, swatchRadius, calColor2, scale);
-        drawSwatch(canvas, startX + (spacing * 2), swatchY, swatchRadius, clockColor1, scale);
-        drawSwatch(canvas, startX + (spacing * 3), swatchY, swatchRadius, clockColor2, scale);
 
         return bitmap;
     }
