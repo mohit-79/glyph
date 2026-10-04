@@ -40,6 +40,8 @@ public class WidgetConfigActivity extends Activity {
     private TextView textThemeSpecs;
 
     private View cardFrostedIntensity;
+    private View layoutBlurControls;
+    private View layoutWitheringControls;
     private SeekBar seekBlurIntensity;
     private TextView textBlurIntensityVal;
     private SeekBar seekFrostingIntensity;
@@ -93,6 +95,8 @@ public class WidgetConfigActivity extends Activity {
         textThemeSpecs = (TextView) findViewById(R.id.text_theme_specs);
 
         cardFrostedIntensity = findViewById(R.id.card_frosted_intensity);
+        layoutBlurControls = findViewById(R.id.layout_blur_controls);
+        layoutWitheringControls = findViewById(R.id.layout_withering_controls);
         seekBlurIntensity = (SeekBar) findViewById(R.id.seek_blur_intensity);
         textBlurIntensityVal = (TextView) findViewById(R.id.text_blur_intensity_val);
         seekFrostingIntensity = (SeekBar) findViewById(R.id.seek_frosting_intensity);
@@ -201,10 +205,21 @@ public class WidgetConfigActivity extends Activity {
     }
 
     private void updateGlassCardVisibility(String themeId) {
-        boolean isGlass = GlyphTheme.isGlass(themeId);
-        cardFrostedIntensity.setAlpha(isGlass ? 1.0f : 0.45f);
-        seekBlurIntensity.setEnabled(GlyphTheme.isFrosted(themeId));
-        seekFrostingIntensity.setEnabled(isGlass);
+        boolean isFrosted = GlyphTheme.isFrosted(themeId);
+        boolean isWithering = GlyphTheme.isWithering(themeId);
+
+        if (isFrosted) {
+            cardFrostedIntensity.setVisibility(View.VISIBLE);
+            layoutBlurControls.setVisibility(View.VISIBLE);
+            layoutWitheringControls.setVisibility(View.GONE);
+        } else if (isWithering) {
+            cardFrostedIntensity.setVisibility(View.VISIBLE);
+            layoutBlurControls.setVisibility(View.GONE);
+            layoutWitheringControls.setVisibility(View.VISIBLE);
+        } else {
+            // Completely hide the glass card for all regular themes 1-25
+            cardFrostedIntensity.setVisibility(View.GONE);
+        }
     }
 
     private void initGlassControls() {
@@ -262,9 +277,9 @@ public class WidgetConfigActivity extends Activity {
 
         String bgDesc;
         if (GlyphTheme.isFrosted(theme.id)) {
-            bgDesc = "Transparent + Optical Blur (" + prefs.getBlurIntensity(widgetType) + "px)";
+            bgDesc = "100% Transparent + Optical Blur (" + prefs.getBlurIntensity(widgetType) + "px, No Tint)";
         } else if (GlyphTheme.isWithering(theme.id)) {
-            bgDesc = "Withering Liquid Glass (" + prefs.getFrostingIntensity(widgetType) + "%)";
+            bgDesc = "Withering Smoked Glass (" + prefs.getFrostingIntensity(widgetType) + "%)";
         } else {
             bgDesc = String.format("#%06X", (0xFFFFFF & theme.backgroundColor));
         }

@@ -8,6 +8,19 @@ import android.graphics.Bitmap;
  */
 public class FastBlur {
 
+    /**
+     * Downsamples source bitmap before blurring and scales back up for high performance and smooth diffusion.
+     */
+    public static Bitmap blurFast(Bitmap src, int radius) {
+        if (src == null || radius < 1) return src;
+        float factor = 0.5f; // 2x downsample for 4x speed and softer optical blur
+        int tw = Math.max(16, (int) (src.getWidth() * factor));
+        int th = Math.max(16, (int) (src.getHeight() * factor));
+        Bitmap scaled = Bitmap.createScaledBitmap(src, tw, th, true);
+        Bitmap blurred = stackBlur(scaled, Math.max(1, (int) (radius * factor)));
+        return Bitmap.createScaledBitmap(blurred, src.getWidth(), src.getHeight(), true);
+    }
+
     public static Bitmap stackBlur(Bitmap sentBitmap, int radius) {
         if (radius < 1) {
             return sentBitmap;

@@ -141,13 +141,13 @@ public class GlyphTheme {
         THEMES.add(new ThemeDef("aurora", "Aurora Borealis",
                 "#071E22", "#1D7874", "#EEF5DB", "#679267", "#FFFFFF", "#00F5D4"));
 
-        // 26. Withering Glass (Liquid Translucent Gradient Glass)
+        // 26. Withering Glass (Obsidian Weathered Smoked Glass)
         THEMES.add(new ThemeDef("withering_glass", "Withering Glass",
-                "#2AFFFFFF", "#66FFFFFF", "#FFFFFF", "#E2E8F0", "#FFFFFF", "#93C5FD"));
+                "#3310141D", "#4D38BDF8", "#F8FAFC", "#94A3B8", "#FFFFFF", "#38BDF8"));
 
-        // 27. Frosted Glass (Transparent Widget with Optical Blur Intensity)
+        // 27. Frosted Glass (100% Transparent Widget with Pure Optical Blur & Zero White Tint)
         THEMES.add(new ThemeDef("frosted_glass", "Frosted Glass",
-                "#00000000", "#55FFFFFF", "#FFFFFF", "#F1F5F9", "#FFFFFF", "#38BDF8"));
+                "#00000000", "#40FFFFFF", "#FFFFFF", "#F1F5F9", "#FFFFFF", "#38BDF8"));
     }
 
     public static boolean isWithering(String themeId) {
