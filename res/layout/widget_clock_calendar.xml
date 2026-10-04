@@ -19,19 +19,21 @@
         android:layout_height="match_parent"
         android:orientation="horizontal">
 
-        <View
+        <ImageView
             android:id="@+id/widget_click_clock"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@android:color/transparent" />
+            android:contentDescription="Clock Touch Target"
+            android:src="@android:color/transparent" />
 
-        <View
+        <ImageView
             android:id="@+id/widget_click_calendar"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@android:color/transparent" />
+            android:contentDescription="Calendar Touch Target"
+            android:src="@android:color/transparent" />
 
     </LinearLayout>
 
