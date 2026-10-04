@@ -165,15 +165,21 @@ public class WidgetConfigActivity extends Activity {
     }
 
     private void updateThemeSpecsDisplay(GlyphTheme.ThemeDef theme) {
+        int borderColor = prefs.getBorderColor(widgetType);
+        int calColor1 = prefs.getCalendarColor1(widgetType);
+        int calColor2 = prefs.getCalendarColor2(widgetType);
+        int clockColor1 = prefs.getClockColor1(widgetType);
+        int clockColor2 = prefs.getClockColor2(widgetType);
+
         String specs = "Active Theme: " + theme.name + "\n"
                 + "• Background: " + String.format("#%06X", (0xFFFFFF & theme.backgroundColor)) + "\n"
-                + "• Border (1): " + String.format("#%06X", (0xFFFFFF & theme.borderColor)) + "\n"
+                + "• Border (1): " + String.format("#%06X", (0xFFFFFF & borderColor)) + "\n"
                 + "• Calendar Colors (2): "
-                + String.format("#%06X", (0xFFFFFF & theme.calendarTextPrimary)) + " / "
-                + String.format("#%06X", (0xFFFFFF & theme.calendarTextSecondary)) + "\n"
+                + String.format("#%06X", (0xFFFFFF & calColor1)) + " / "
+                + String.format("#%06X", (0xFFFFFF & calColor2)) + "\n"
                 + "• Clock Colors (2): "
-                + String.format("#%06X", (0xFFFFFF & theme.clockTextPrimary)) + " / "
-                + String.format("#%06X", (0xFFFFFF & theme.clockTextSecondary));
+                + String.format("#%06X", (0xFFFFFF & clockColor1)) + " / "
+                + String.format("#%06X", (0xFFFFFF & clockColor2));
         textThemeSpecs.setText(specs);
     }
 

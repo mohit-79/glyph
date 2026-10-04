@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 /**
  * GlyphPrefs manages persistent configuration namespaced per widget type.
  * Ensures each widget (Clock & Calendar, Weather, Music, etc.) controls
- * its margins, themes, and dimensions completely independently.
+ * its margins, themes, dimensions, and colors completely independently.
  */
 public class GlyphPrefs {
 
@@ -22,6 +22,8 @@ public class GlyphPrefs {
     public static final int DEFAULT_MARGIN_BOTTOM = 16;
     public static final int DEFAULT_CORNER_RADIUS = 36;
     public static final String DEFAULT_THEME_ID = "obsidian";
+
+    public static final int NO_OVERRIDE_COLOR = -1;
 
     private final SharedPreferences prefs;
 
@@ -41,6 +43,101 @@ public class GlyphPrefs {
 
     public GlyphTheme.ThemeDef getTheme(String widgetType) {
         return GlyphTheme.getThemeById(getThemeId(widgetType));
+    }
+
+    // --- Per-Widget Default & Custom Color Getters/Setters ---
+
+    /**
+     * Returns the effective border color: custom override if set, else active theme default.
+     */
+    public int getBorderColor(String widgetType) {
+        int custom = prefs.getInt(widgetType + "_border_color", NO_OVERRIDE_COLOR);
+        if (custom != NO_OVERRIDE_COLOR) {
+            return custom;
+        }
+        return getTheme(widgetType).borderColor;
+    }
+
+    public void setBorderColor(String widgetType, int color) {
+        prefs.edit().putInt(widgetType + "_border_color", color).apply();
+    }
+
+    public void resetBorderColor(String widgetType) {
+        prefs.edit().remove(widgetType + "_border_color").apply();
+    }
+
+    /**
+     * Returns the effective Calendar Color 1 (Primary): custom override if set, else theme default.
+     */
+    public int getCalendarColor1(String widgetType) {
+        int custom = prefs.getInt(widgetType + "_cal_color_1", NO_OVERRIDE_COLOR);
+        if (custom != NO_OVERRIDE_COLOR) {
+            return custom;
+        }
+        return getTheme(widgetType).calendarTextPrimary;
+    }
+
+    public void setCalendarColor1(String widgetType, int color) {
+        prefs.edit().putInt(widgetType + "_cal_color_1", color).apply();
+    }
+
+    /**
+     * Returns the effective Calendar Color 2 (Secondary): custom override if set, else theme default.
+     */
+    public int getCalendarColor2(String widgetType) {
+        int custom = prefs.getInt(widgetType + "_cal_color_2", NO_OVERRIDE_COLOR);
+        if (custom != NO_OVERRIDE_COLOR) {
+            return custom;
+        }
+        return getTheme(widgetType).calendarTextSecondary;
+    }
+
+    public void setCalendarColor2(String widgetType, int color) {
+        prefs.edit().putInt(widgetType + "_cal_color_2", color).apply();
+    }
+
+    public void resetCalendarColors(String widgetType) {
+        prefs.edit()
+                .remove(widgetType + "_cal_color_1")
+                .remove(widgetType + "_cal_color_2")
+                .apply();
+    }
+
+    /**
+     * Returns the effective Clock Color 1 (Primary): custom override if set, else theme default.
+     */
+    public int getClockColor1(String widgetType) {
+        int custom = prefs.getInt(widgetType + "_clock_color_1", NO_OVERRIDE_COLOR);
+        if (custom != NO_OVERRIDE_COLOR) {
+            return custom;
+        }
+        return getTheme(widgetType).clockTextPrimary;
+    }
+
+    public void setClockColor1(String widgetType, int color) {
+        prefs.edit().putInt(widgetType + "_clock_color_1", color).apply();
+    }
+
+    /**
+     * Returns the effective Clock Color 2 (Secondary/Accent): custom override if set, else theme default.
+     */
+    public int getClockColor2(String widgetType) {
+        int custom = prefs.getInt(widgetType + "_clock_color_2", NO_OVERRIDE_COLOR);
+        if (custom != NO_OVERRIDE_COLOR) {
+            return custom;
+        }
+        return getTheme(widgetType).clockTextSecondary;
+    }
+
+    public void setClockColor2(String widgetType, int color) {
+        prefs.edit().putInt(widgetType + "_clock_color_2", color).apply();
+    }
+
+    public void resetClockColors(String widgetType) {
+        prefs.edit()
+                .remove(widgetType + "_clock_color_1")
+                .remove(widgetType + "_clock_color_2")
+                .apply();
     }
 
     // --- Per-Widget Namespaced Margin Controls ---

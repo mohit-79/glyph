@@ -12,7 +12,8 @@ import com.glyph.widget.GlyphTheme;
 
 /**
  * WidgetCanvas renders 2D Canvas bitmaps for both launcher RemoteViews
- * and in-app real-time previews, strictly enforcing per-widget margins and themes.
+ * and in-app real-time previews, strictly enforcing per-widget margins, themes,
+ * and stored colors for border, calendar, and clock.
  */
 public class WidgetCanvas {
 
@@ -29,6 +30,11 @@ public class WidgetCanvas {
         float scale = width / 360f;
 
         GlyphTheme.ThemeDef theme = prefs.getTheme(widgetType);
+        int borderColor = prefs.getBorderColor(widgetType);
+        int calColor1 = prefs.getCalendarColor1(widgetType);
+        int calColor2 = prefs.getCalendarColor2(widgetType);
+        int clockColor1 = prefs.getClockColor1(widgetType);
+        int clockColor2 = prefs.getClockColor2(widgetType);
 
         float marginLeft = prefs.getMarginLeft(widgetType) * scale;
         float marginTop = prefs.getMarginTop(widgetType) * scale;
@@ -55,9 +61,9 @@ public class WidgetCanvas {
         bgPaint.setStyle(Paint.Style.FILL);
         canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, bgPaint);
 
-        // Draw border with theme border color
+        // Draw border with stored border color
         Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        borderPaint.setColor(theme.borderColor);
+        borderPaint.setColor(borderColor);
         borderPaint.setStyle(Paint.Style.STROKE);
         borderPaint.setStrokeWidth(3.5f * scale);
         canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, borderPaint);
@@ -67,7 +73,7 @@ public class WidgetCanvas {
 
         // Theme Title & Primary Display
         Paint titlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        titlePaint.setColor(theme.clockTextPrimary);
+        titlePaint.setColor(clockColor1);
         titlePaint.setTextSize(26f * scale);
         titlePaint.setTextAlign(Paint.Align.CENTER);
         titlePaint.setFakeBoldText(true);
@@ -75,14 +81,14 @@ public class WidgetCanvas {
 
         // Stored Clock Colors indicator
         Paint clockIndicatorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        clockIndicatorPaint.setColor(theme.clockTextSecondary);
+        clockIndicatorPaint.setColor(clockColor2);
         clockIndicatorPaint.setTextSize(13f * scale);
         clockIndicatorPaint.setTextAlign(Paint.Align.CENTER);
         canvas.drawText("Clock Colors: Pri / Sec", centerX, centerY + (6f * scale), clockIndicatorPaint);
 
         // Stored Calendar Colors indicator
         Paint calIndicatorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        calIndicatorPaint.setColor(theme.calendarTextSecondary);
+        calIndicatorPaint.setColor(calColor2);
         calIndicatorPaint.setTextSize(13f * scale);
         calIndicatorPaint.setTextAlign(Paint.Align.CENTER);
         canvas.drawText("Calendar Colors: Pri / Sec", centerX, centerY + (26f * scale), calIndicatorPaint);
@@ -93,10 +99,10 @@ public class WidgetCanvas {
         float spacing = 22f * scale;
         float startX = centerX - (spacing * 1.5f);
 
-        drawSwatch(canvas, startX, swatchY, swatchRadius, theme.calendarTextPrimary, scale);
-        drawSwatch(canvas, startX + spacing, swatchY, swatchRadius, theme.calendarTextSecondary, scale);
-        drawSwatch(canvas, startX + (spacing * 2), swatchY, swatchRadius, theme.clockTextPrimary, scale);
-        drawSwatch(canvas, startX + (spacing * 3), swatchY, swatchRadius, theme.clockTextSecondary, scale);
+        drawSwatch(canvas, startX, swatchY, swatchRadius, calColor1, scale);
+        drawSwatch(canvas, startX + spacing, swatchY, swatchRadius, calColor2, scale);
+        drawSwatch(canvas, startX + (spacing * 2), swatchY, swatchRadius, clockColor1, scale);
+        drawSwatch(canvas, startX + (spacing * 3), swatchY, swatchRadius, clockColor2, scale);
 
         return bitmap;
     }
@@ -132,6 +138,11 @@ public class WidgetCanvas {
         float scale = width / 360f;
 
         GlyphTheme.ThemeDef theme = prefs.getTheme(widgetType);
+        int borderColor = prefs.getBorderColor(widgetType);
+        int calColor1 = prefs.getCalendarColor1(widgetType);
+        int calColor2 = prefs.getCalendarColor2(widgetType);
+        int clockColor1 = prefs.getClockColor1(widgetType);
+        int clockColor2 = prefs.getClockColor2(widgetType);
 
         // Faint outer bounds representing home screen cell boundary
         Paint cellBoundaryPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -168,7 +179,7 @@ public class WidgetCanvas {
 
         // Pill border
         Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        borderPaint.setColor(theme.borderColor);
+        borderPaint.setColor(borderColor);
         borderPaint.setStyle(Paint.Style.STROKE);
         borderPaint.setStrokeWidth(3f * scale);
         canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, borderPaint);
@@ -178,7 +189,7 @@ public class WidgetCanvas {
 
         // Theme name label
         Paint titlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        titlePaint.setColor(theme.clockTextPrimary);
+        titlePaint.setColor(clockColor1);
         titlePaint.setTextSize(24f * scale);
         titlePaint.setTextAlign(Paint.Align.CENTER);
         titlePaint.setFakeBoldText(true);
@@ -186,7 +197,7 @@ public class WidgetCanvas {
 
         // Stored color values display
         Paint subPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        subPaint.setColor(theme.clockTextSecondary);
+        subPaint.setColor(clockColor2);
         subPaint.setTextSize(12f * scale);
         subPaint.setTextAlign(Paint.Align.CENTER);
         canvas.drawText("Stored: Border (1) • Cal (2) • Clock (2)", centerX, centerY + (8f * scale), subPaint);
@@ -197,10 +208,10 @@ public class WidgetCanvas {
         float spacing = 22f * scale;
         float startX = centerX - (spacing * 1.5f);
 
-        drawSwatch(canvas, startX, swatchY, swatchRadius, theme.calendarTextPrimary, scale);
-        drawSwatch(canvas, startX + spacing, swatchY, swatchRadius, theme.calendarTextSecondary, scale);
-        drawSwatch(canvas, startX + (spacing * 2), swatchY, swatchRadius, theme.clockTextPrimary, scale);
-        drawSwatch(canvas, startX + (spacing * 3), swatchY, swatchRadius, theme.clockTextSecondary, scale);
+        drawSwatch(canvas, startX, swatchY, swatchRadius, calColor1, scale);
+        drawSwatch(canvas, startX + spacing, swatchY, swatchRadius, calColor2, scale);
+        drawSwatch(canvas, startX + (spacing * 2), swatchY, swatchRadius, clockColor1, scale);
+        drawSwatch(canvas, startX + (spacing * 3), swatchY, swatchRadius, clockColor2, scale);
 
         return bitmap;
     }
