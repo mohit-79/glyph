@@ -21,11 +21,26 @@ public class GlyphPrefs {
     public static final int DEFAULT_MARGIN_RIGHT = 16;
     public static final int DEFAULT_MARGIN_BOTTOM = 16;
     public static final int DEFAULT_CORNER_RADIUS = 36;
+    public static final String DEFAULT_THEME_ID = "obsidian";
 
     private final SharedPreferences prefs;
 
     public GlyphPrefs(Context context) {
         this.prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+    }
+
+    // --- Per-Widget Namespaced Theme Selection ---
+
+    public String getThemeId(String widgetType) {
+        return prefs.getString(widgetType + "_theme_id", DEFAULT_THEME_ID);
+    }
+
+    public void setThemeId(String widgetType, String themeId) {
+        prefs.edit().putString(widgetType + "_theme_id", themeId).apply();
+    }
+
+    public GlyphTheme.ThemeDef getTheme(String widgetType) {
+        return GlyphTheme.getThemeById(getThemeId(widgetType));
     }
 
     // --- Per-Widget Namespaced Margin Controls ---

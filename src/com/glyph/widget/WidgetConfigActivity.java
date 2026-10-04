@@ -4,16 +4,21 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.glyph.widget.compositor.WidgetCanvas;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * WidgetConfigActivity provides the dedicated per-widget customizer window.
- * Ensures margins and settings apply exclusively to the selected widget type.
+ * Supports 26 curated color themes, 4-side margin controls, and real-time previews.
  */
 public class WidgetConfigActivity extends Activity {
 
@@ -25,6 +30,11 @@ public class WidgetConfigActivity extends Activity {
     private ImageView previewCanvas;
     private TextView textConfigWidgetTitle;
     private Button btnBackToHub;
+
+    private Spinner spinnerThemes;
+    private Button btnPrevTheme;
+    private Button btnNextTheme;
+    private TextView textThemeSpecs;
 
     private SeekBar seekMarginLeft;
     private SeekBar seekMarginTop;
@@ -41,6 +51,8 @@ public class WidgetConfigActivity extends Activity {
     private Button btnResetMargins;
     private Button btnApplyWidget;
 
+    private boolean isInitializingTheme = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +65,7 @@ public class WidgetConfigActivity extends Activity {
 
         prefs = new GlyphPrefs(this);
         bindViews();
+        initThemes();
         initControls();
         refreshPreview();
     }
@@ -61,6 +74,11 @@ public class WidgetConfigActivity extends Activity {
         textConfigWidgetTitle = (TextView) findViewById(R.id.text_config_widget_title);
         btnBackToHub = (Button) findViewById(R.id.btn_back_to_hub);
         previewCanvas = (ImageView) findViewById(R.id.preview_canvas);
+
+        spinnerThemes = (Spinner) findViewById(R.id.spinner_themes);
+        btnPrevTheme = (Button) findViewById(R.id.btn_prev_theme);
+        btnNextTheme = (Button) findViewById(R.id.btn_next_theme);
+        textThemeSpecs = (TextView) findViewById(R.id.text_theme_specs);
 
         seekMarginLeft = (SeekBar) findViewById(R.id.seek_margin_left);
         seekMarginTop = (SeekBar) findViewById(R.id.seek_margin_top);
@@ -89,6 +107,74 @@ public class WidgetConfigActivity extends Activity {
                 finish();
             }
         });
+    }
+
+    private void initThemes() {
+        final List<GlyphTheme.ThemeDef> themes = GlyphTheme.getAllThemes();
+        List<String> themeTitles = new ArrayList<String>();
+        for (int i = 0; i < themes.size(); i++) {
+            themeTitles.add((i + 1) + ". " + themes.get(i).name);
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                themeTitles
+        );
+        spinnerThemes.setAdapter(adapter);
+
+        int currentIdx = GlyphTheme.getThemeIndexById(prefs.getThemeId(widgetType));
+        spinnerThemes.setSelection(currentIdx);
+        updateThemeSpecsDisplay(themes.get(currentIdx));
+
+        spinnerThemes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (isInitializingTheme) {
+                    isInitializingTheme = false;
+                    return;
+                }
+                GlyphTheme.ThemeDef selected = themes.get(position);
+                prefs.setThemeId(widgetType, selected.id);
+                updateThemeSpecsDisplay(selected);
+                refreshPreview();
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        btnPrevTheme.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int cur = spinnerThemes.getSelectedItemPosition();
+                int next = (cur > 0) ? cur - 1 : themes.size() - 1;
+                spinnerThemes.setSelection(next);
+            }
+        });
+
+        btnNextTheme.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int cur = spinnerThemes.getSelectedItemPosition();
+                int next = (cur < themes.size() - 1) ? cur + 1 : 0;
+                spinnerThemes.setSelection(next);
+            }
+        });
+    }
+
+    private void updateThemeSpecsDisplay(GlyphTheme.ThemeDef theme) {
+        String specs = "Active Theme: " + theme.name + "\n"
+                + "• Background: " + String.format("#%06X", (0xFFFFFF & theme.backgroundColor)) + "\n"
+                + "• Border (1): " + String.format("#%06X", (0xFFFFFF & theme.borderColor)) + "\n"
+                + "• Calendar Colors (2): "
+                + String.format("#%06X", (0xFFFFFF & theme.calendarTextPrimary)) + " / "
+                + String.format("#%06X", (0xFFFFFF & theme.calendarTextSecondary)) + "\n"
+                + "• Clock Colors (2): "
+                + String.format("#%06X", (0xFFFFFF & theme.clockTextPrimary)) + " / "
+                + String.format("#%06X", (0xFFFFFF & theme.clockTextSecondary));
+        textThemeSpecs.setText(specs);
     }
 
     private void initControls() {
@@ -149,7 +235,7 @@ public class WidgetConfigActivity extends Activity {
                 initControls();
                 refreshPreview();
                 GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
-                Toast.makeText(WidgetConfigActivity.this, "Reset to defaults for " + textConfigWidgetTitle.getText(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(WidgetConfigActivity.this, "Reset margins for " + textConfigWidgetTitle.getText(), Toast.LENGTH_SHORT).show();
             }
         });
 

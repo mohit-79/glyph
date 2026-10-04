@@ -8,10 +8,11 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import com.glyph.widget.GlyphPrefs;
+import com.glyph.widget.GlyphTheme;
 
 /**
  * WidgetCanvas renders 2D Canvas bitmaps for both launcher RemoteViews
- * and in-app real-time previews, strictly enforcing per-widget unoccupied margins.
+ * and in-app real-time previews, strictly enforcing per-widget margins and themes.
  */
 public class WidgetCanvas {
 
@@ -25,8 +26,9 @@ public class WidgetCanvas {
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
 
-        // Density scale factor for high-resolution rendering
         float scale = width / 360f;
+
+        GlyphTheme.ThemeDef theme = prefs.getTheme(widgetType);
 
         float marginLeft = prefs.getMarginLeft(widgetType) * scale;
         float marginTop = prefs.getMarginTop(widgetType) * scale;
@@ -34,57 +36,82 @@ public class WidgetCanvas {
         float marginBottom = prefs.getMarginBottom(widgetType) * scale;
         float cornerRadius = prefs.getCornerRadius(widgetType) * scale;
 
-        // Bounding box for the inner pill based on 4-side margins
         float pillLeft = Math.max(0, marginLeft);
         float pillTop = Math.max(0, marginTop);
         float pillRight = Math.min(width, width - marginRight);
         float pillBottom = Math.min(height, height - marginBottom);
 
-        if (pillRight <= pillLeft + 40f) {
-            pillRight = pillLeft + 40f;
-        }
-        if (pillBottom <= pillTop + 40f) {
-            pillBottom = pillTop + 40f;
-        }
+        if (pillRight <= pillLeft + 40f) pillRight = pillLeft + 40f;
+        if (pillBottom <= pillTop + 40f) pillBottom = pillTop + 40f;
 
         RectF pillRect = new RectF(pillLeft, pillTop, pillRight, pillBottom);
 
-        // Outer transparent background (ensures unoccupied margins are transparent)
+        // Outer transparent background
         canvas.drawColor(Color.TRANSPARENT);
 
-        // Background pill
+        // Fill background pill with theme background color
         Paint bgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        bgPaint.setColor(Color.parseColor("#12151C"));
+        bgPaint.setColor(theme.backgroundColor);
         bgPaint.setStyle(Paint.Style.FILL);
         canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, bgPaint);
 
-        // Border
+        // Draw border with theme border color
         Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        borderPaint.setColor(Color.parseColor("#272E3B"));
+        borderPaint.setColor(theme.borderColor);
         borderPaint.setStyle(Paint.Style.STROKE);
-        borderPaint.setStrokeWidth(3f * scale);
+        borderPaint.setStrokeWidth(3.5f * scale);
         canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, borderPaint);
-
-        // Center typography indicator
-        Paint titlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        titlePaint.setColor(Color.parseColor("#F8FAFC"));
-        titlePaint.setTextSize(36f * scale);
-        titlePaint.setTextAlign(Paint.Align.CENTER);
-        titlePaint.setFakeBoldText(true);
 
         float centerX = pillRect.centerX();
         float centerY = pillRect.centerY();
-        canvas.drawText("GLYPH", centerX, centerY - (8f * scale), titlePaint);
 
-        Paint subPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        subPaint.setColor(Color.parseColor("#3B82F6"));
-        subPaint.setTextSize(15f * scale);
-        subPaint.setTextAlign(Paint.Align.CENTER);
-        canvas.drawText("Pill Margin: L" + prefs.getMarginLeft(widgetType) + " T" + prefs.getMarginTop(widgetType)
-                + " R" + prefs.getMarginRight(widgetType) + " B" + prefs.getMarginBottom(widgetType),
-                centerX, centerY + (24f * scale), subPaint);
+        // Theme Title & Primary Display
+        Paint titlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        titlePaint.setColor(theme.clockTextPrimary);
+        titlePaint.setTextSize(26f * scale);
+        titlePaint.setTextAlign(Paint.Align.CENTER);
+        titlePaint.setFakeBoldText(true);
+        canvas.drawText(theme.name.toUpperCase(), centerX, centerY - (18f * scale), titlePaint);
+
+        // Stored Clock Colors indicator
+        Paint clockIndicatorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        clockIndicatorPaint.setColor(theme.clockTextSecondary);
+        clockIndicatorPaint.setTextSize(13f * scale);
+        clockIndicatorPaint.setTextAlign(Paint.Align.CENTER);
+        canvas.drawText("Clock Colors: Pri / Sec", centerX, centerY + (6f * scale), clockIndicatorPaint);
+
+        // Stored Calendar Colors indicator
+        Paint calIndicatorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        calIndicatorPaint.setColor(theme.calendarTextSecondary);
+        calIndicatorPaint.setTextSize(13f * scale);
+        calIndicatorPaint.setTextAlign(Paint.Align.CENTER);
+        canvas.drawText("Calendar Colors: Pri / Sec", centerX, centerY + (26f * scale), calIndicatorPaint);
+
+        // Color Swatches Bar inside the pill
+        float swatchY = centerY + (42f * scale);
+        float swatchRadius = 6f * scale;
+        float spacing = 22f * scale;
+        float startX = centerX - (spacing * 1.5f);
+
+        drawSwatch(canvas, startX, swatchY, swatchRadius, theme.calendarTextPrimary, scale);
+        drawSwatch(canvas, startX + spacing, swatchY, swatchRadius, theme.calendarTextSecondary, scale);
+        drawSwatch(canvas, startX + (spacing * 2), swatchY, swatchRadius, theme.clockTextPrimary, scale);
+        drawSwatch(canvas, startX + (spacing * 3), swatchY, swatchRadius, theme.clockTextSecondary, scale);
 
         return bitmap;
+    }
+
+    private static void drawSwatch(Canvas canvas, float cx, float cy, float radius, int color, float scale) {
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setStyle(Paint.Style.FILL);
+        p.setColor(color);
+        canvas.drawCircle(cx, cy, radius, p);
+
+        Paint stroke = new Paint(Paint.ANTI_ALIAS_FLAG);
+        stroke.setStyle(Paint.Style.STROKE);
+        stroke.setStrokeWidth(1.2f * scale);
+        stroke.setColor(Color.WHITE);
+        canvas.drawCircle(cx, cy, radius, stroke);
     }
 
     public static Bitmap renderWidget(Context context, int width, int height, GlyphPrefs prefs) {
@@ -92,8 +119,8 @@ public class WidgetCanvas {
     }
 
     /**
-     * Renders the interactive preview bitmap with a dashed bounding box
-     * to visualize the unoccupied launcher space for a given widget type.
+     * Renders the interactive preview bitmap with a dashed cell boundary
+     * and the active theme's colors.
      */
     public static Bitmap renderPreview(int width, int height, GlyphPrefs prefs, String widgetType) {
         if (width <= 0) width = 720;
@@ -103,6 +130,8 @@ public class WidgetCanvas {
         Canvas canvas = new Canvas(bitmap);
 
         float scale = width / 360f;
+
+        GlyphTheme.ThemeDef theme = prefs.getTheme(widgetType);
 
         // Faint outer bounds representing home screen cell boundary
         Paint cellBoundaryPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -133,33 +162,45 @@ public class WidgetCanvas {
 
         // Fill pill
         Paint bgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        bgPaint.setColor(Color.parseColor("#12151C"));
+        bgPaint.setColor(theme.backgroundColor);
         bgPaint.setStyle(Paint.Style.FILL);
         canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, bgPaint);
 
         // Pill border
         Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        borderPaint.setColor(Color.parseColor("#3B82F6"));
+        borderPaint.setColor(theme.borderColor);
         borderPaint.setStyle(Paint.Style.STROKE);
-        borderPaint.setStrokeWidth(2.5f * scale);
+        borderPaint.setStrokeWidth(3f * scale);
         canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, borderPaint);
-
-        // Center preview labels
-        Paint titlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        titlePaint.setColor(Color.parseColor("#F8FAFC"));
-        titlePaint.setTextSize(32f * scale);
-        titlePaint.setTextAlign(Paint.Align.CENTER);
-        titlePaint.setFakeBoldText(true);
 
         float centerX = pillRect.centerX();
         float centerY = pillRect.centerY();
-        canvas.drawText("GLYPH PILL", centerX, centerY - (6f * scale), titlePaint);
 
+        // Theme name label
+        Paint titlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        titlePaint.setColor(theme.clockTextPrimary);
+        titlePaint.setTextSize(24f * scale);
+        titlePaint.setTextAlign(Paint.Align.CENTER);
+        titlePaint.setFakeBoldText(true);
+        canvas.drawText(theme.name, centerX, centerY - (14f * scale), titlePaint);
+
+        // Stored color values display
         Paint subPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        subPaint.setColor(Color.parseColor("#94A3B8"));
-        subPaint.setTextSize(14f * scale);
+        subPaint.setColor(theme.clockTextSecondary);
+        subPaint.setTextSize(12f * scale);
         subPaint.setTextAlign(Paint.Align.CENTER);
-        canvas.drawText("Unoccupied Margin Tuner", centerX, centerY + (20f * scale), subPaint);
+        canvas.drawText("Stored: Border (1) • Cal (2) • Clock (2)", centerX, centerY + (8f * scale), subPaint);
+
+        // Color Swatches
+        float swatchY = centerY + (28f * scale);
+        float swatchRadius = 6f * scale;
+        float spacing = 22f * scale;
+        float startX = centerX - (spacing * 1.5f);
+
+        drawSwatch(canvas, startX, swatchY, swatchRadius, theme.calendarTextPrimary, scale);
+        drawSwatch(canvas, startX + spacing, swatchY, swatchRadius, theme.calendarTextSecondary, scale);
+        drawSwatch(canvas, startX + (spacing * 2), swatchY, swatchRadius, theme.clockTextPrimary, scale);
+        drawSwatch(canvas, startX + (spacing * 3), swatchY, swatchRadius, theme.clockTextSecondary, scale);
 
         return bitmap;
     }

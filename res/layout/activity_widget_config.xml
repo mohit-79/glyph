@@ -42,16 +42,6 @@
 
         </LinearLayout>
 
-        <!-- Subtitle -->
-        <TextView
-            android:id="@+id/text_config_widget_subtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Pill Structure &amp; 4-Side Margin Tuner"
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
-
         <!-- Live Real-Time Canvas Preview Card -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -64,7 +54,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Live Canvas Preview (Dashed line = Cell Boundary)"
+                android:text="Live Canvas Preview (Theme &amp; Margins)"
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -76,6 +66,85 @@
                 android:layout_marginTop="12dp"
                 android:scaleType="fitCenter"
                 android:contentDescription="Widget Preview" />
+
+        </LinearLayout>
+
+        <!-- Theme Selection Card (26 Presets) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Color Themes (26 Presets)"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Select from 26 curated schemes. Storing defaults for Border (1), Calendar (2), and Clock (2)."
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <!-- Theme Dropdown Spinner -->
+            <Spinner
+                android:id="@+id/spinner_themes"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/bg_card"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp" />
+
+            <!-- Quick Prev/Next Theme Cycling -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_prev_theme"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_card"
+                    android:text="Previous Theme"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/btn_next_theme"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_card"
+                    android:text="Next Theme"
+                    android:textColor="@color/accent_blue"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <!-- Theme Color Specs Display -->
+            <TextView
+                android:id="@+id/text_theme_specs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:lineSpacingMultiplier="1.2"
+                android:text="Theme Specs: Loading..."
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
 
         </LinearLayout>
 
@@ -96,19 +165,11 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Adjust unoccupied space on each side independently for this widget"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
-
             <!-- Left Margin -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="14dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
                 <TextView
@@ -131,14 +192,14 @@
                 android:id="@+id/seek_margin_left"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="4dp"
                 android:max="48" />
 
             <!-- Top Margin -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="12dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
                 <TextView
@@ -161,14 +222,14 @@
                 android:id="@+id/seek_margin_top"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="4dp"
                 android:max="48" />
 
             <!-- Right Margin -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="12dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
                 <TextView
@@ -191,14 +252,14 @@
                 android:id="@+id/seek_margin_right"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="4dp"
                 android:max="48" />
 
             <!-- Bottom Margin -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="12dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
                 <TextView
@@ -221,7 +282,7 @@
                 android:id="@+id/seek_margin_bottom"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="4dp"
                 android:max="48" />
 
         </LinearLayout>
@@ -261,7 +322,7 @@
                 android:id="@+id/seek_corner_radius"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="6dp"
                 android:max="64" />
 
         </LinearLayout>
