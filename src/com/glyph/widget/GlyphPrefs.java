@@ -341,6 +341,20 @@ public class GlyphPrefs {
         prefs.edit().putBoolean(widgetType + "_clock_24h", is24h).apply();
     }
 
+    public static final int DEFAULT_CLOCK_STYLE = 0;
+
+    public int getClockStyle(String widgetType) {
+        return prefs.getInt(widgetType + "_clock_style", DEFAULT_CLOCK_STYLE);
+    }
+
+    public void setClockStyle(String widgetType, int style) {
+        prefs.edit().putInt(widgetType + "_clock_style", style).apply();
+    }
+
+    public void resetClockStyle(String widgetType) {
+        prefs.edit().remove(widgetType + "_clock_style").apply();
+    }
+
     public void resetClockTransform(String widgetType) {
         prefs.edit()
                 .putInt(widgetType + "_clock_x", DEFAULT_CLOCK_X)

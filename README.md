@@ -105,7 +105,20 @@ Renders a live digital clock directly onto the 2D canvas with sub-pixel alignmen
   * Vertical Position (Y): -80dp to +80dp
   * Clock Scale (Zoom): 50% to 250%
 * **One-Tap Reset**: Restores default clock coordinates and scale without affecting calendar transforms.
-* **Perpetual Minute Tick Sync**: Employs `AlarmManager.setExactAndAllowWhileIdle` (`ACTION_UPDATE_GLYPH`) to wake and tick widgets precisely on the minute rollover, combined with system broadcast listeners (`TIME_SET`, `TIMEZONE_CHANGED`, `DATE_CHANGED`, `BOOT_COMPLETED`), reflection-based API 31+ permission checks, and inexact fallback.
+* **12 Distinct Artistic Clock Styles**:
+  1. **Bold Capsule Sans**: Chunky rounded digital font with superscript AM/PM pill capsule badge.
+  2. **Retro 7-Segment LED**: Authentic electronic LED display with lit segments and faint unlit ghost framing.
+  3. **Mechanical Split-Flap**: Split flip-board cards with center dividing seam and tactile card borders.
+  4. **Stacked 2x2 Gradient Pill**: Vertical stacked layout with hours above minutes and bracket corner framing.
+  5. **Dot Matrix LED**: Fine-pitch 5x7 dot matrix array with unlit ghost LEDs and circular dot diodes.
+  6. **Superscript Seconds & Date**: Crisp architectural typography with live running seconds and date pill tag.
+  7. **Bold Athletic Block**: Heavy faceted athletic stencil block numerals with chamfered geometry.
+  8. **Whimsical Cartoon Bubble**: Playful bulbous typography with inner bubble reflection highlight crescents.
+  9. **Modular Mosaic Block**: Minimalist Nothing OS inspired block mosaic constructed from geometric tiles.
+  10. **Sci-Fi Stencil Squircle**: Cyberpunk HUD telemetry display with technical squircle frames and scanline seam.
+  11. **Ultra-Condensed Tall Deco**: Ultra-tall slender Bauhaus Art Deco numerals with stacked minute column.
+  12. **Analog Dial Hybrid**: Asymmetric hybrid featuring an authentic circular analog dial beside digital time.
+* **In-App Style Studio**: Interactive spinner, style counter (e.g. `1 / 12`), previous/next quick cycling buttons, and live style descriptions.
 * **Crash Resilience & Defensive Guards**: Safe cached Typeface resolution avoiding null font metrics across custom ROMs, wrapped canvas drawing routines, and guarded widget update broadcasts ensuring the customizer never crashes or restarts during slider manipulation.
 
 ### 6. Two-Tone Calendar sRGB Gamut Customizer
@@ -202,6 +215,6 @@ The output APK is compiled, dexed, aligned, and signed with `debug.keystore`, pr
 * [x] **Commit 9**: Multiple Artistic Calendar Styles (11 Distinct Aesthetic Variants)
 * [x] **Commit 10**: Two-Tone Calendar sRGB Gamut Customizer
 * [x] **Commit 11**: Movable & Resizable Test Clock Foundation
-* [ ] **Commit 12**: Multiple Artistic Clock Styles (12 Distinct Aesthetic Variants)
+* [x] **Commit 12**: Multiple Artistic Clock Styles (12 Distinct Aesthetic Variants)
 * [ ] **Commit 13**: Clock Two-Tone sRGB Gamut Customizer
 * [ ] **Commit 14**: In-App UI/UX Aesthetic Redesign

@@ -20,6 +20,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.glyph.widget.compositor.CalendarRenderer;
+import com.glyph.widget.compositor.ClockRenderer;
 import com.glyph.widget.compositor.WallpaperHelper;
 import com.glyph.widget.compositor.WidgetCanvas;
 import java.util.ArrayList;
@@ -115,7 +116,12 @@ public class WidgetConfigActivity extends Activity {
     private int activeCalTone = 1;
     private boolean isUpdatingCalColorFromCode = false;
 
-    // Clock Studio (Position & Scale) fields
+    // Clock Studio (Style, Position & Scale) fields
+    private Spinner spinnerClockStyle;
+    private TextView textClockStyleCounter;
+    private TextView textClockStyleDesc;
+    private Button btnPrevClockStyle;
+    private Button btnNextClockStyle;
     private Button btnToggleClockFormat;
     private SeekBar seekClockX;
     private TextView textClockXVal;
@@ -235,6 +241,12 @@ public class WidgetConfigActivity extends Activity {
         textCalValueVal = (TextView) findViewById(R.id.text_cal_value_val);
         btnResetCalActiveTone = (Button) findViewById(R.id.btn_reset_cal_active_tone);
         btnResetCalBothTones = (Button) findViewById(R.id.btn_reset_cal_both_tones);
+
+        spinnerClockStyle = (Spinner) findViewById(R.id.spinner_clock_style);
+        textClockStyleCounter = (TextView) findViewById(R.id.text_clock_style_counter);
+        textClockStyleDesc = (TextView) findViewById(R.id.text_clock_style_desc);
+        btnPrevClockStyle = (Button) findViewById(R.id.btn_prev_clock_style);
+        btnNextClockStyle = (Button) findViewById(R.id.btn_next_clock_style);
 
         btnToggleClockFormat = (Button) findViewById(R.id.btn_toggle_clock_format);
         seekClockX = (SeekBar) findViewById(R.id.seek_clock_x);
@@ -1145,6 +1157,57 @@ public class WidgetConfigActivity extends Activity {
     }
 
     private void initClockStudioControls() {
+        // 1. Clock Style Selector
+        List<String> clockStyleLabels = new ArrayList<String>();
+        for (int i = 0; i < ClockRenderer.STYLE_COUNT; i++) {
+            clockStyleLabels.add((i + 1) + ". " + ClockRenderer.STYLE_NAMES[i]);
+        }
+
+        ArrayAdapter<String> clockStyleAdapter = new ArrayAdapter<String>(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                clockStyleLabels
+        );
+        spinnerClockStyle.setAdapter(clockStyleAdapter);
+
+        int currentClockStyle = Math.max(0, Math.min(ClockRenderer.STYLE_COUNT - 1, prefs.getClockStyle(widgetType)));
+        spinnerClockStyle.setSelection(currentClockStyle);
+        updateClockStyleDisplay(currentClockStyle);
+
+        spinnerClockStyle.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (prefs.getClockStyle(widgetType) != position) {
+                    prefs.setClockStyle(widgetType, position);
+                    updateClockStyleDisplay(position);
+                    refreshPreview();
+                    safeUpdateWidgets();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        btnPrevClockStyle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int cur = spinnerClockStyle.getSelectedItemPosition();
+                int prev = (cur > 0) ? cur - 1 : ClockRenderer.STYLE_COUNT - 1;
+                spinnerClockStyle.setSelection(prev);
+            }
+        });
+
+        btnNextClockStyle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int cur = spinnerClockStyle.getSelectedItemPosition();
+                int next = (cur < ClockRenderer.STYLE_COUNT - 1) ? cur + 1 : 0;
+                spinnerClockStyle.setSelection(next);
+            }
+        });
+
+        // 2. Format & Transform Controls
         int clockX = prefs.getClockX(widgetType);
         int clockY = prefs.getClockY(widgetType);
         int clockScale = prefs.getClockScale(widgetType);
@@ -1231,21 +1294,34 @@ public class WidgetConfigActivity extends Activity {
             @Override
             public void onClick(View v) {
                 prefs.resetClockTransform(widgetType);
+                prefs.resetClockStyle(widgetType);
+                int cs = prefs.getClockStyle(widgetType);
+                spinnerClockStyle.setSelection(cs);
+                updateClockStyleDisplay(cs);
                 int cx = prefs.getClockX(widgetType);
                 int cy = prefs.getClockY(widgetType);
-                int cs = prefs.getClockScale(widgetType);
+                int cScale = prefs.getClockScale(widgetType);
                 seekClockX.setProgress(cx + 120);
                 updateClockXDisplay(cx);
                 seekClockY.setProgress(cy + 80);
                 updateClockYDisplay(cy);
-                seekClockScale.setProgress(cs - 50);
-                textClockScaleVal.setText(cs + "%");
+                seekClockScale.setProgress(cScale - 50);
+                textClockScaleVal.setText(cScale + "%");
                 updateClockFormatButton(prefs.isClock24Hour(widgetType));
                 refreshPreview();
                 safeUpdateWidgets();
-                Toast.makeText(WidgetConfigActivity.this, "Reset clock position & scale", Toast.LENGTH_SHORT).show();
+                Toast.makeText(WidgetConfigActivity.this, "Reset clock style, position & scale", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void updateClockStyleDisplay(int styleIndex) {
+        if (textClockStyleCounter != null) {
+            textClockStyleCounter.setText((styleIndex + 1) + " / " + ClockRenderer.STYLE_COUNT);
+        }
+        if (textClockStyleDesc != null) {
+            textClockStyleDesc.setText(ClockRenderer.STYLE_DESCRIPTIONS[styleIndex]);
+        }
     }
 
     private void updateClockFormatButton(boolean is24h) {

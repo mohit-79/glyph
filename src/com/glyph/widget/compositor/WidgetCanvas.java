@@ -148,12 +148,13 @@ public class WidgetCanvas {
             int clockColor1 = prefs.getClockColor1(widgetType);
             int clockColor2 = prefs.getClockColor2(widgetType);
             boolean is24h = prefs.isClock24Hour(widgetType);
+            int clockStyle = prefs.getClockStyle(widgetType);
 
             ClockRenderer.drawClock(
                     canvas, pillRect, scale,
                     clockX, clockY, clockScale,
                     clockColor1, clockColor2,
-                    is24h
+                    is24h, clockStyle
             );
         } catch (Throwable t) {
             android.util.Log.e("WidgetCanvas", "Error rendering clock on widget", t);
@@ -360,12 +361,13 @@ public class WidgetCanvas {
             int clockColor1 = prefs.getClockColor1(widgetType);
             int clockColor2 = prefs.getClockColor2(widgetType);
             boolean is24h = prefs.isClock24Hour(widgetType);
+            int clockStyle = prefs.getClockStyle(widgetType);
 
             ClockRenderer.drawClock(
                     canvas, pillRect, scale,
                     clockX, clockY, clockScale,
                     clockColor1, clockColor2,
-                    is24h
+                    is24h, clockStyle
             );
         } catch (Throwable t) {
             android.util.Log.e("WidgetCanvas", "Error rendering clock on preview", t);
