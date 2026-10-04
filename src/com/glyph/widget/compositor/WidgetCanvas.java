@@ -66,12 +66,17 @@ public class WidgetCanvas {
         Paint bgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         bgPaint.setStyle(Paint.Style.FILL);
 
+        float borderThicknessDp = prefs.getBorderThickness(widgetType);
+        float borderStrokeWidth = borderThicknessDp * scale;
+        boolean hasBorder = borderStrokeWidth > 0.05f;
+
         Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         borderPaint.setStyle(Paint.Style.STROKE);
-        borderPaint.setStrokeWidth(3.0f * scale);
+        borderPaint.setStrokeWidth(borderStrokeWidth);
 
         boolean isWithering = GlyphTheme.isWithering(theme.id);
         boolean isFrosted = GlyphTheme.isFrosted(theme.id);
+        boolean hasCustomBorder = prefs.hasCustomBorderColor(widgetType);
 
         if (isFrosted) {
             // Pure optical blur with ZERO white tint
@@ -90,7 +95,6 @@ public class WidgetCanvas {
 
                 // Zero white tint: background is completely transparent
                 bgPaint.setColor(Color.TRANSPARENT);
-                borderPaint.setColor(Color.parseColor("#44FFFFFF"));
             } else {
                 // Frosted Glass Diffusion fallback when wallpaper is not yet synced
                 bgPaint.setShader(new LinearGradient(
@@ -99,7 +103,12 @@ public class WidgetCanvas {
                         Color.argb(34, 255, 255, 255),
                         Color.argb(12, 255, 255, 255),
                         Shader.TileMode.CLAMP));
-                borderPaint.setColor(Color.argb(90, 255, 255, 255));
+            }
+
+            if (hasCustomBorder) {
+                borderPaint.setColor(borderColor);
+            } else {
+                borderPaint.setColor(blurredWp != null ? Color.parseColor("#44FFFFFF") : Color.argb(90, 255, 255, 255));
             }
 
         } else if (isWithering) {
@@ -116,8 +125,12 @@ public class WidgetCanvas {
                     Color.argb(alphaBottom, 10, 14, 20),
                     Shader.TileMode.CLAMP));
 
-            int rimAlpha = Math.min(255, (int) (ratio * 160f) + 60);
-            borderPaint.setColor(Color.argb(rimAlpha, 56, 189, 248));
+            if (hasCustomBorder) {
+                borderPaint.setColor(borderColor);
+            } else {
+                int rimAlpha = Math.min(255, (int) (ratio * 160f) + 60);
+                borderPaint.setColor(Color.argb(rimAlpha, 56, 189, 248));
+            }
 
         } else {
             bgPaint.setColor(theme.backgroundColor);
@@ -125,7 +138,9 @@ public class WidgetCanvas {
         }
 
         canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, bgPaint);
-        canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, borderPaint);
+        if (hasBorder) {
+            canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, borderPaint);
+        }
 
         float centerX = pillRect.centerX();
         float centerY = pillRect.centerY();
@@ -292,12 +307,17 @@ public class WidgetCanvas {
         Paint bgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         bgPaint.setStyle(Paint.Style.FILL);
 
+        float borderThicknessDp = prefs.getBorderThickness(widgetType);
+        float borderStrokeWidth = borderThicknessDp * scale;
+        boolean hasBorder = borderStrokeWidth > 0.05f;
+
         Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         borderPaint.setStyle(Paint.Style.STROKE);
-        borderPaint.setStrokeWidth(3f * scale);
+        borderPaint.setStrokeWidth(borderStrokeWidth);
 
         boolean isWithering = GlyphTheme.isWithering(theme.id);
         boolean isFrosted = GlyphTheme.isFrosted(theme.id);
+        boolean hasCustomBorder = prefs.hasCustomBorderColor(widgetType);
 
         if (isFrosted) {
             // Extract the background behind the pill and apply optical blur with ZERO white tint
@@ -321,7 +341,12 @@ public class WidgetCanvas {
 
             // Zero white tint overlay: completely transparent inside
             bgPaint.setColor(Color.TRANSPARENT);
-            borderPaint.setColor(Color.parseColor("#44FFFFFF"));
+
+            if (hasCustomBorder) {
+                borderPaint.setColor(borderColor);
+            } else {
+                borderPaint.setColor(Color.parseColor("#44FFFFFF"));
+            }
 
         } else if (isWithering) {
             int intensity = prefs.getFrostingIntensity(widgetType);
@@ -336,8 +361,12 @@ public class WidgetCanvas {
                     Color.argb(alphaBottom, 10, 14, 20),
                     Shader.TileMode.CLAMP));
 
-            int rimAlpha = Math.min(255, (int) (ratio * 160f) + 60);
-            borderPaint.setColor(Color.argb(rimAlpha, 56, 189, 248));
+            if (hasCustomBorder) {
+                borderPaint.setColor(borderColor);
+            } else {
+                int rimAlpha = Math.min(255, (int) (ratio * 160f) + 60);
+                borderPaint.setColor(Color.argb(rimAlpha, 56, 189, 248));
+            }
 
         } else {
             bgPaint.setColor(theme.backgroundColor);
@@ -345,7 +374,9 @@ public class WidgetCanvas {
         }
 
         canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, bgPaint);
-        canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, borderPaint);
+        if (hasBorder) {
+            canvas.drawRoundRect(pillRect, cornerRadius, cornerRadius, borderPaint);
+        }
 
         float centerX = pillRect.centerX();
         float centerY = pillRect.centerY();

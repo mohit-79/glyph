@@ -25,6 +25,7 @@ public class GlyphPrefs {
     public static final int DEFAULT_FROSTING_INTENSITY = 45;
     public static final int DEFAULT_BLUR_INTENSITY = 24;
     public static final int DEFAULT_WALLPAPER_POSITION = 0; // 0 = Top, 1 = Upper Center, 2 = Center, etc.
+    public static final int DEFAULT_BORDER_THICKNESS = 3; // 0dp to 16dp
 
     public static final int NO_OVERRIDE_COLOR = -1;
 
@@ -91,6 +92,22 @@ public class GlyphPrefs {
 
     public void resetBorderColor(String widgetType) {
         prefs.edit().remove(widgetType + "_border_color").apply();
+    }
+
+    public boolean hasCustomBorderColor(String widgetType) {
+        return prefs.getInt(widgetType + "_border_color", NO_OVERRIDE_COLOR) != NO_OVERRIDE_COLOR;
+    }
+
+    public int getBorderThickness(String widgetType) {
+        return prefs.getInt(widgetType + "_border_thickness", DEFAULT_BORDER_THICKNESS);
+    }
+
+    public void setBorderThickness(String widgetType, int thickness) {
+        prefs.edit().putInt(widgetType + "_border_thickness", thickness).apply();
+    }
+
+    public void resetBorderThickness(String widgetType) {
+        prefs.edit().remove(widgetType + "_border_thickness").apply();
     }
 
     /**

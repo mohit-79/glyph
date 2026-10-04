@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -24,7 +27,7 @@ import java.util.List;
 /**
  * WidgetConfigActivity provides the dedicated per-widget customizer window.
  * Supports 27 curated color themes, Withering Glass, Frosted Glass (with optical blur),
- * 4-side margin controls, and real-time previews.
+ * border customizer (thickness & sRGB gamut), 4-side margin controls, and real-time previews.
  */
 public class WidgetConfigActivity extends Activity {
 
@@ -59,6 +62,22 @@ public class WidgetConfigActivity extends Activity {
     private Button btnPickWallpaper;
     private Spinner spinnerWallpaperPosition;
 
+    // Border Customizer fields
+    private SeekBar seekBorderThickness;
+    private TextView textBorderThicknessVal;
+    private View viewBorderColorPreview;
+    private TextView textBorderColorHex;
+    private TextView textBorderColorStatus;
+    private Button btnResetBorderColor;
+    private LinearLayout layoutBorderQuickPalette;
+    private SeekBar seekHue;
+    private TextView textHueVal;
+    private SeekBar seekSaturation;
+    private TextView textSaturationVal;
+    private SeekBar seekValue;
+    private TextView textValueVal;
+    private boolean isUpdatingBorderFromCode = false;
+
     private SeekBar seekMarginLeft;
     private SeekBar seekMarginTop;
     private SeekBar seekMarginRight;
@@ -90,6 +109,7 @@ public class WidgetConfigActivity extends Activity {
         bindViews();
         initThemes();
         initGlassControls();
+        initBorderControls();
         initControls();
         refreshPreview();
     }
@@ -118,6 +138,20 @@ public class WidgetConfigActivity extends Activity {
         btnSyncWallpaper = (Button) findViewById(R.id.btn_sync_wallpaper);
         btnPickWallpaper = (Button) findViewById(R.id.btn_pick_wallpaper);
         spinnerWallpaperPosition = (Spinner) findViewById(R.id.spinner_wallpaper_position);
+
+        seekBorderThickness = (SeekBar) findViewById(R.id.seek_border_thickness);
+        textBorderThicknessVal = (TextView) findViewById(R.id.text_border_thickness_val);
+        viewBorderColorPreview = findViewById(R.id.view_border_color_preview);
+        textBorderColorHex = (TextView) findViewById(R.id.text_border_color_hex);
+        textBorderColorStatus = (TextView) findViewById(R.id.text_border_color_status);
+        btnResetBorderColor = (Button) findViewById(R.id.btn_reset_border_color);
+        layoutBorderQuickPalette = (LinearLayout) findViewById(R.id.layout_border_quick_palette);
+        seekHue = (SeekBar) findViewById(R.id.seek_hue);
+        textHueVal = (TextView) findViewById(R.id.text_hue_val);
+        seekSaturation = (SeekBar) findViewById(R.id.seek_saturation);
+        textSaturationVal = (TextView) findViewById(R.id.text_saturation_val);
+        seekValue = (SeekBar) findViewById(R.id.seek_value);
+        textValueVal = (TextView) findViewById(R.id.text_value_val);
 
         seekMarginLeft = (SeekBar) findViewById(R.id.seek_margin_left);
         seekMarginTop = (SeekBar) findViewById(R.id.seek_margin_top);
@@ -178,6 +212,7 @@ public class WidgetConfigActivity extends Activity {
                 prefs.setThemeId(widgetType, selected.id);
                 updateThemeSpecsDisplay(selected);
                 updateGlassCardVisibility(selected.id);
+                updateBorderCustomizerUI();
                 refreshPreview();
                 GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
             }
@@ -394,8 +429,191 @@ public class WidgetConfigActivity extends Activity {
         }
     }
 
+    private void initBorderControls() {
+        int thickness = prefs.getBorderThickness(widgetType);
+        seekBorderThickness.setProgress(thickness);
+        updateBorderThicknessDisplay(thickness);
+
+        seekBorderThickness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                updateBorderThicknessDisplay(progress);
+                prefs.setBorderThickness(widgetType, progress);
+                updateThemeSpecsDisplay(prefs.getTheme(widgetType));
+                refreshPreview();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+            }
+        });
+
+        // Setup Rainbow spectrum background for Hue SeekBar
+        GradientDrawable rainbow = new GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[]{
+                        0xFFFF0000, 0xFFFFFF00, 0xFF00FF00,
+                        0xFF00FFFF, 0xFF0000FF, 0xFFFF00FF, 0xFFFF0000
+                }
+        );
+        rainbow.setCornerRadius(8f);
+        seekHue.setBackground(rainbow);
+        seekHue.setPadding(16, 12, 16, 12);
+
+        // Populate Quick Palette
+        final int[] quickColors = {
+                0xFFFFFFFF, // Pure White
+                0xFF94A3B8, // Silver Slate
+                0xFF334155, // Charcoal
+                0xFFEF4444, // Red
+                0xFFF59E0B, // Amber
+                0xFF10B981, // Emerald
+                0xFF38BDF8, // Cyan Blue
+                0xFF8B5CF6  // Violet
+        };
+
+        layoutBorderQuickPalette.removeAllViews();
+        float density = getResources().getDisplayMetrics().density;
+        int sizePx = (int) (32 * density);
+        int marginPx = (int) (8 * density);
+
+        for (final int color : quickColors) {
+            View dot = new View(this);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(sizePx, sizePx);
+            lp.setMargins(0, 0, marginPx, 0);
+            dot.setLayoutParams(lp);
+
+            GradientDrawable gd = new GradientDrawable();
+            gd.setShape(GradientDrawable.OVAL);
+            gd.setColor(color);
+            gd.setStroke(2, 0xFF475569);
+            dot.setBackground(gd);
+
+            dot.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    prefs.setBorderColor(widgetType, color);
+                    updateBorderCustomizerUI();
+                    updateThemeSpecsDisplay(prefs.getTheme(widgetType));
+                    refreshPreview();
+                    GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                }
+            });
+
+            layoutBorderQuickPalette.addView(dot);
+        }
+
+        // HSV SeekBars Listeners
+        SeekBar.OnSeekBarChangeListener hsvListener = new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (isUpdatingBorderFromCode) return;
+
+                float hue = seekHue.getProgress();
+                float sat = seekSaturation.getProgress() / 100f;
+                float val = seekValue.getProgress() / 100f;
+
+                textHueVal.setText(Math.round(hue) + "°");
+                textSaturationVal.setText(Math.round(sat * 100f) + "%");
+                textValueVal.setText(Math.round(val * 100f) + "%");
+
+                int color = Color.HSVToColor(new float[]{hue, sat, val});
+                prefs.setBorderColor(widgetType, color);
+
+                updateBorderSwatchOnly(color, true);
+                updateThemeSpecsDisplay(prefs.getTheme(widgetType));
+                refreshPreview();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+            }
+        };
+
+        seekHue.setOnSeekBarChangeListener(hsvListener);
+        seekSaturation.setOnSeekBarChangeListener(hsvListener);
+        seekValue.setOnSeekBarChangeListener(hsvListener);
+
+        btnResetBorderColor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prefs.resetBorderColor(widgetType);
+                updateBorderCustomizerUI();
+                updateThemeSpecsDisplay(prefs.getTheme(widgetType));
+                refreshPreview();
+                GlyphWidgetProvider.updateAllWidgets(WidgetConfigActivity.this);
+                Toast.makeText(WidgetConfigActivity.this, "Reset border color to theme default", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        updateBorderCustomizerUI();
+    }
+
+    private void updateBorderThicknessDisplay(int thickness) {
+        if (thickness == 0) {
+            textBorderThicknessVal.setText("0 dp (Borderless)");
+        } else if (thickness == 3) {
+            textBorderThicknessVal.setText("3 dp (Default)");
+        } else if (thickness >= 12) {
+            textBorderThicknessVal.setText(thickness + " dp (Very Thick)");
+        } else {
+            textBorderThicknessVal.setText(thickness + " dp");
+        }
+    }
+
+    private void updateBorderSwatchOnly(int color, boolean isCustom) {
+        GradientDrawable swatch = new GradientDrawable();
+        swatch.setShape(GradientDrawable.OVAL);
+        swatch.setColor(color);
+        swatch.setStroke(2, 0xFF64748B);
+        viewBorderColorPreview.setBackground(swatch);
+
+        textBorderColorHex.setText(String.format("#%06X", (0xFFFFFF & color)));
+        if (isCustom) {
+            textBorderColorStatus.setText("Custom Override");
+            textBorderColorStatus.setTextColor(getResources().getColor(R.color.accent_blue));
+            btnResetBorderColor.setVisibility(View.VISIBLE);
+        } else {
+            textBorderColorStatus.setText("Theme Default");
+            textBorderColorStatus.setTextColor(getResources().getColor(R.color.text_secondary));
+            btnResetBorderColor.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateBorderCustomizerUI() {
+        if (seekHue == null) return;
+        int activeColor = prefs.getBorderColor(widgetType);
+        boolean isCustom = prefs.hasCustomBorderColor(widgetType);
+
+        updateBorderSwatchOnly(activeColor, isCustom);
+
+        float[] hsv = new float[3];
+        Color.colorToHSV(activeColor, hsv);
+
+        isUpdatingBorderFromCode = true;
+        seekHue.setProgress(Math.round(hsv[0]));
+        textHueVal.setText(Math.round(hsv[0]) + "°");
+
+        seekSaturation.setProgress(Math.round(hsv[1] * 100f));
+        textSaturationVal.setText(Math.round(hsv[1] * 100f) + "%");
+
+        seekValue.setProgress(Math.round(hsv[2] * 100f));
+        textValueVal.setText(Math.round(hsv[2] * 100f) + "%");
+        isUpdatingBorderFromCode = false;
+    }
+
     private void updateThemeSpecsDisplay(GlyphTheme.ThemeDef theme) {
         int borderColor = prefs.getBorderColor(widgetType);
+        int borderThickness = prefs.getBorderThickness(widgetType);
+        boolean customBorder = prefs.hasCustomBorderColor(widgetType);
         int calColor1 = prefs.getCalendarColor1(widgetType);
         int calColor2 = prefs.getCalendarColor2(widgetType);
         int clockColor1 = prefs.getClockColor1(widgetType);
@@ -410,9 +628,12 @@ public class WidgetConfigActivity extends Activity {
             bgDesc = String.format("#%06X", (0xFFFFFF & theme.backgroundColor));
         }
 
+        String borderDesc = String.format("#%06X", (0xFFFFFF & borderColor))
+                + " (" + borderThickness + "dp" + (customBorder ? ", Custom" : ", Default") + ")";
+
         String specs = "Active Theme: " + theme.name + "\n"
                 + "• Background: " + bgDesc + "\n"
-                + "• Border (1): " + String.format("#%06X", (0xFFFFFF & borderColor)) + "\n"
+                + "• Border (1): " + borderDesc + "\n"
                 + "• Calendar Colors (2): "
                 + String.format("#%06X", (0xFFFFFF & calColor1)) + " / "
                 + String.format("#%06X", (0xFFFFFF & calColor2)) + "\n"
