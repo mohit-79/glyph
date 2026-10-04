@@ -131,6 +131,28 @@ public class WidgetConfigActivity extends Activity {
     private TextView textClockScaleVal;
     private Button btnResetClockTransform;
 
+    // Clock Two-Tone Color Customizer fields
+    private LinearLayout tabClockTone1;
+    private LinearLayout tabClockTone2;
+    private View viewClockColor1Preview;
+    private TextView textClockColor1Hex;
+    private TextView textClockColor1Status;
+    private View viewClockColor2Preview;
+    private TextView textClockColor2Hex;
+    private TextView textClockColor2Status;
+    private TextView textClockActiveToneLabel;
+    private LinearLayout layoutClockQuickPalette;
+    private SeekBar seekClockHue;
+    private TextView textClockHueVal;
+    private SeekBar seekClockSaturation;
+    private TextView textClockSaturationVal;
+    private SeekBar seekClockValue;
+    private TextView textClockValueVal;
+    private Button btnResetClockActiveTone;
+    private Button btnResetClockBothTones;
+    private int activeClockTone = 1;
+    private boolean isUpdatingClockColorFromCode = false;
+
     private SeekBar seekMarginLeft;
     private SeekBar seekMarginTop;
     private SeekBar seekMarginRight;
@@ -166,6 +188,7 @@ public class WidgetConfigActivity extends Activity {
         initCalendarStudioControls();
         initCalendarColorControls();
         initClockStudioControls();
+        initClockColorControls();
         initControls();
         refreshPreview();
     }
@@ -257,6 +280,25 @@ public class WidgetConfigActivity extends Activity {
         textClockScaleVal = (TextView) findViewById(R.id.text_clock_scale_val);
         btnResetClockTransform = (Button) findViewById(R.id.btn_reset_clock_transform);
 
+        tabClockTone1 = (LinearLayout) findViewById(R.id.tab_clock_tone1);
+        tabClockTone2 = (LinearLayout) findViewById(R.id.tab_clock_tone2);
+        viewClockColor1Preview = findViewById(R.id.view_clock_color1_preview);
+        textClockColor1Hex = (TextView) findViewById(R.id.text_clock_color1_hex);
+        textClockColor1Status = (TextView) findViewById(R.id.text_clock_color1_status);
+        viewClockColor2Preview = findViewById(R.id.view_clock_color2_preview);
+        textClockColor2Hex = (TextView) findViewById(R.id.text_clock_color2_hex);
+        textClockColor2Status = (TextView) findViewById(R.id.text_clock_color2_status);
+        textClockActiveToneLabel = (TextView) findViewById(R.id.text_clock_active_tone_label);
+        layoutClockQuickPalette = (LinearLayout) findViewById(R.id.layout_clock_quick_palette);
+        seekClockHue = (SeekBar) findViewById(R.id.seek_clock_hue);
+        textClockHueVal = (TextView) findViewById(R.id.text_clock_hue_val);
+        seekClockSaturation = (SeekBar) findViewById(R.id.seek_clock_saturation);
+        textClockSaturationVal = (TextView) findViewById(R.id.text_clock_saturation_val);
+        seekClockValue = (SeekBar) findViewById(R.id.seek_clock_value);
+        textClockValueVal = (TextView) findViewById(R.id.text_clock_value_val);
+        btnResetClockActiveTone = (Button) findViewById(R.id.btn_reset_clock_active_tone);
+        btnResetClockBothTones = (Button) findViewById(R.id.btn_reset_clock_both_tones);
+
         seekMarginLeft = (SeekBar) findViewById(R.id.seek_margin_left);
         seekMarginTop = (SeekBar) findViewById(R.id.seek_margin_top);
         seekMarginRight = (SeekBar) findViewById(R.id.seek_margin_right);
@@ -318,6 +360,7 @@ public class WidgetConfigActivity extends Activity {
                 updateGlassCardVisibility(selected.id);
                 updateBorderCustomizerUI();
                 updateCalendarColorCustomizerUI();
+                updateClockColorCustomizerUI();
                 refreshPreview();
                 safeUpdateWidgets();
             }
@@ -1348,6 +1391,250 @@ public class WidgetConfigActivity extends Activity {
         } else {
             textClockYVal.setText(y + " dp (Up)");
         }
+    }
+
+    private void initClockColorControls() {
+        // Rainbow Gradient for Clock Hue SeekBar
+        GradientDrawable rainbow = new GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[]{
+                        0xFFFF0000, 0xFFFFFF00, 0xFF00FF00,
+                        0xFF00FFFF, 0xFF0000FF, 0xFFFF00FF, 0xFFFF0000
+                }
+        );
+        rainbow.setCornerRadius(8f);
+        seekClockHue.setBackground(rainbow);
+        seekClockHue.setPadding(16, 12, 16, 12);
+
+        // Tone Tab Selection
+        tabClockTone1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (activeClockTone != 1) {
+                    activeClockTone = 1;
+                    updateClockColorCustomizerUI();
+                }
+            }
+        });
+
+        tabClockTone2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (activeClockTone != 2) {
+                    activeClockTone = 2;
+                    updateClockColorCustomizerUI();
+                }
+            }
+        });
+
+        // Quick Swatches for Clock
+        final int[] quickColors = {
+                0xFFFFFFFF, // Pure White
+                0xFF94A3B8, // Silver Slate
+                0xFF334155, // Charcoal
+                0xFFEF4444, // Red
+                0xFFF59E0B, // Amber
+                0xFF10B981, // Emerald
+                0xFF38BDF8, // Cyan Blue
+                0xFF8B5CF6  // Violet
+        };
+
+        layoutClockQuickPalette.removeAllViews();
+        float density = getResources().getDisplayMetrics().density;
+        int sizePx = (int) (32 * density);
+        int marginPx = (int) (8 * density);
+
+        for (final int color : quickColors) {
+            View dot = new View(this);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(sizePx, sizePx);
+            lp.setMargins(0, 0, marginPx, 0);
+            dot.setLayoutParams(lp);
+
+            GradientDrawable gd = new GradientDrawable();
+            gd.setShape(GradientDrawable.OVAL);
+            gd.setColor(color);
+            gd.setStroke(2, 0xFF475569);
+            dot.setBackground(gd);
+
+            dot.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (activeClockTone == 1) {
+                        prefs.setClockColor1(widgetType, color);
+                    } else {
+                        prefs.setClockColor2(widgetType, color);
+                    }
+                    updateClockColorCustomizerUI();
+                    updateThemeSpecsDisplay(prefs.getTheme(widgetType));
+                    refreshPreview();
+                    safeUpdateWidgets();
+                }
+            });
+
+            layoutClockQuickPalette.addView(dot);
+        }
+
+        // HSV SeekBars Listeners
+        SeekBar.OnSeekBarChangeListener clockHsvListener = new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (isUpdatingClockColorFromCode) return;
+
+                float hue = seekClockHue.getProgress();
+                float sat = seekClockSaturation.getProgress() / 100f;
+                float val = seekClockValue.getProgress() / 100f;
+
+                textClockHueVal.setText(Math.round(hue) + "°");
+                textClockSaturationVal.setText(Math.round(sat * 100f) + "%");
+                textClockValueVal.setText(Math.round(val * 100f) + "%");
+
+                int color = Color.HSVToColor(new float[]{hue, sat, val});
+                if (activeClockTone == 1) {
+                    prefs.setClockColor1(widgetType, color);
+                    updateClockTone1Display(color, true);
+                } else {
+                    prefs.setClockColor2(widgetType, color);
+                    updateClockTone2Display(color, true);
+                }
+
+                updateThemeSpecsDisplay(prefs.getTheme(widgetType));
+                refreshPreview();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                safeUpdateWidgets();
+            }
+        };
+
+        seekClockHue.setOnSeekBarChangeListener(clockHsvListener);
+        seekClockSaturation.setOnSeekBarChangeListener(clockHsvListener);
+        seekClockValue.setOnSeekBarChangeListener(clockHsvListener);
+
+        btnResetClockActiveTone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (activeClockTone == 1) {
+                    prefs.resetClockColor1(widgetType);
+                    Toast.makeText(WidgetConfigActivity.this, "Reset Tone 1 to theme default", Toast.LENGTH_SHORT).show();
+                } else {
+                    prefs.resetClockColor2(widgetType);
+                    Toast.makeText(WidgetConfigActivity.this, "Reset Tone 2 to theme default", Toast.LENGTH_SHORT).show();
+                }
+                updateClockColorCustomizerUI();
+                updateThemeSpecsDisplay(prefs.getTheme(widgetType));
+                refreshPreview();
+                safeUpdateWidgets();
+            }
+        });
+
+        btnResetClockBothTones.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prefs.resetClockColors(widgetType);
+                updateClockColorCustomizerUI();
+                updateThemeSpecsDisplay(prefs.getTheme(widgetType));
+                refreshPreview();
+                safeUpdateWidgets();
+                Toast.makeText(WidgetConfigActivity.this, "Reset both clock colors to theme default", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        updateClockColorCustomizerUI();
+    }
+
+    private void updateClockTone1Display(int color, boolean isCustom) {
+        GradientDrawable swatch = new GradientDrawable();
+        swatch.setShape(GradientDrawable.OVAL);
+        swatch.setColor(color);
+        swatch.setStroke(2, 0xFF64748B);
+        viewClockColor1Preview.setBackground(swatch);
+
+        textClockColor1Hex.setText(String.format("#%06X", (0xFFFFFF & color)));
+        if (isCustom) {
+            textClockColor1Status.setText("Custom Override");
+            textClockColor1Status.setTextColor(getResources().getColor(R.color.accent_blue));
+        } else {
+            textClockColor1Status.setText("Theme Default");
+            textClockColor1Status.setTextColor(getResources().getColor(R.color.text_secondary));
+        }
+    }
+
+    private void updateClockTone2Display(int color, boolean isCustom) {
+        GradientDrawable swatch = new GradientDrawable();
+        swatch.setShape(GradientDrawable.OVAL);
+        swatch.setColor(color);
+        swatch.setStroke(2, 0xFF64748B);
+        viewClockColor2Preview.setBackground(swatch);
+
+        textClockColor2Hex.setText(String.format("#%06X", (0xFFFFFF & color)));
+        if (isCustom) {
+            textClockColor2Status.setText("Custom Override");
+            textClockColor2Status.setTextColor(getResources().getColor(R.color.accent_blue));
+        } else {
+            textClockColor2Status.setText("Theme Default");
+            textClockColor2Status.setTextColor(getResources().getColor(R.color.text_secondary));
+        }
+    }
+
+    private void updateClockColorCustomizerUI() {
+        if (seekClockHue == null) return;
+
+        int color1 = prefs.getClockColor1(widgetType);
+        boolean isCustom1 = prefs.hasCustomClockColor1(widgetType);
+        updateClockTone1Display(color1, isCustom1);
+
+        int color2 = prefs.getClockColor2(widgetType);
+        boolean isCustom2 = prefs.hasCustomClockColor2(widgetType);
+        updateClockTone2Display(color2, isCustom2);
+
+        // Highlight Active Tone Tab
+        float density = getResources().getDisplayMetrics().density;
+        int activeBorderPx = (int) (2 * density);
+        int inactiveBorderPx = (int) (1 * density);
+        int cornerRadiusPx = (int) (12 * density);
+
+        GradientDrawable tab1Bg = new GradientDrawable();
+        tab1Bg.setCornerRadius(cornerRadiusPx);
+        tab1Bg.setColor(0xFF1E293B);
+
+        GradientDrawable tab2Bg = new GradientDrawable();
+        tab2Bg.setCornerRadius(cornerRadiusPx);
+        tab2Bg.setColor(0xFF1E293B);
+
+        int activeColor;
+        if (activeClockTone == 1) {
+            tab1Bg.setStroke(activeBorderPx, 0xFF38BDF8);
+            tab2Bg.setStroke(inactiveBorderPx, 0xFF334155);
+            textClockActiveToneLabel.setText("Editing Tone 1 (Primary - Hours & Minutes)");
+            activeColor = color1;
+        } else {
+            tab1Bg.setStroke(inactiveBorderPx, 0xFF334155);
+            tab2Bg.setStroke(activeBorderPx, 0xFF38BDF8);
+            textClockActiveToneLabel.setText("Editing Tone 2 (Secondary - Accents & Colon)");
+            activeColor = color2;
+        }
+
+        tabClockTone1.setBackground(tab1Bg);
+        tabClockTone2.setBackground(tab2Bg);
+
+        // Set HSV seekbars to the active tone's color
+        float[] hsv = new float[3];
+        Color.colorToHSV(activeColor, hsv);
+
+        isUpdatingClockColorFromCode = true;
+        seekClockHue.setProgress(Math.round(hsv[0]));
+        textClockHueVal.setText(Math.round(hsv[0]) + "°");
+
+        seekClockSaturation.setProgress(Math.round(hsv[1] * 100f));
+        textClockSaturationVal.setText(Math.round(hsv[1] * 100f) + "%");
+
+        seekClockValue.setProgress(Math.round(hsv[2] * 100f));
+        textClockValueVal.setText(Math.round(hsv[2] * 100f) + "%");
+        isUpdatingClockColorFromCode = false;
     }
 
     private void initControls() {

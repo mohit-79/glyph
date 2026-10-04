@@ -130,13 +130,22 @@ Provides independent full-spectrum color customization for the two functional ca
 * **8-Color Quick Palette**: Fast 1-tap presets for White, Slate, Charcoal, Red, Amber, Emerald, Cyan, and Violet.
 * **Selective Resets**: "Reset Active Tone" button and "Reset Both Tones" button to independently restore active theme defaults.
 
-### 7. Border Studio & Full sRGB Color Gamut Picker
+### 7. Two-Tone Clock sRGB Gamut Customizer
+Provides independent full-spectrum color customization for the two functional clock tones:
+* **Tone 1 (Primary Digits)**: Primary hour and minute digits across all 12 artistic clock styles.
+* **Tone 2 (Secondary / Accent)**: Colon separator, superscript AM/PM pill capsule badge, live seconds indicators, date pills, dial ticks, and border accents.
+* **Dual-Tab UI**: Tabbed selector (`Tone 1` vs `Tone 2`) with live circular preview swatches, dynamic hex codes, and real-time "Theme Default" vs "Custom Override" indicators.
+* **Full sRGB Gamut**: Rainbow Hue spectrum bar (0 to 360 degrees), Saturation slider (0% to 100%), and Brightness/Value slider (0% to 100%) providing all 16.7 million sRGB colors.
+* **8-Color Quick Palette**: Fast 1-tap presets for White, Slate, Charcoal, Red, Amber, Emerald, Cyan, and Violet.
+* **Selective Resets**: "Reset Active Tone" button and "Reset Both Tones" button to independently restore active theme defaults without affecting positions or scales.
+
+### 8. Border Studio & Full sRGB Color Gamut Picker
 * **Thickness Control**: Continuous slider from `0dp` (completely borderless) to `16dp` (ultra thick).
 * **Full sRGB Gamut**: Rainbow Hue spectrum bar (0 to 360 degrees), Saturation slider (0% to 100%), and Brightness/Value slider (0% to 100%) providing access to all 16.7 million colors.
 * **8-Color Quick Palette**: Quick swatches for White, Slate, Charcoal, Red, Amber, Emerald, Cyan, and Violet.
 * **Theme Default Reset**: Instant reset button reverting to the active theme's default border palette.
 
-### 8. Curated Theme Catalog (`GlyphTheme.java`)
+### 9. Curated Theme Catalog (`GlyphTheme.java`)
 Contains 27 curated themes with coordinated colors for backgrounds, borders, and typography:
 1. Obsidian Dark
 2. Porcelain Light
@@ -216,5 +225,5 @@ The output APK is compiled, dexed, aligned, and signed with `debug.keystore`, pr
 * [x] **Commit 10**: Two-Tone Calendar sRGB Gamut Customizer
 * [x] **Commit 11**: Movable & Resizable Test Clock Foundation
 * [x] **Commit 12**: Multiple Artistic Clock Styles (12 Distinct Aesthetic Variants)
-* [ ] **Commit 13**: Clock Two-Tone sRGB Gamut Customizer
+* [x] **Commit 13**: Clock Two-Tone sRGB Gamut Customizer
 * [ ] **Commit 14**: In-App UI/UX Aesthetic Redesign

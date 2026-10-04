@@ -185,6 +185,14 @@ public class GlyphPrefs {
         prefs.edit().putInt(widgetType + "_clock_color_1", color).apply();
     }
 
+    public boolean hasCustomClockColor1(String widgetType) {
+        return prefs.getInt(widgetType + "_clock_color_1", NO_OVERRIDE_COLOR) != NO_OVERRIDE_COLOR;
+    }
+
+    public void resetClockColor1(String widgetType) {
+        prefs.edit().remove(widgetType + "_clock_color_1").apply();
+    }
+
     /**
      * Returns the effective Clock Color 2 (Secondary/Accent): custom override if set, else theme default.
      */
@@ -198,6 +206,14 @@ public class GlyphPrefs {
 
     public void setClockColor2(String widgetType, int color) {
         prefs.edit().putInt(widgetType + "_clock_color_2", color).apply();
+    }
+
+    public boolean hasCustomClockColor2(String widgetType) {
+        return prefs.getInt(widgetType + "_clock_color_2", NO_OVERRIDE_COLOR) != NO_OVERRIDE_COLOR;
+    }
+
+    public void resetClockColor2(String widgetType) {
+        prefs.edit().remove(widgetType + "_clock_color_2").apply();
     }
 
     public void resetClockColors(String widgetType) {
