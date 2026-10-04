@@ -398,4 +398,92 @@ public class GlyphPrefs {
     public void setCornerRadius(int value) { setCornerRadius(WIDGET_CLOCK_CALENDAR, value); }
 
     public void resetMargins() { resetMargins(WIDGET_CLOCK_CALENDAR); }
+
+    // --- Widget Tap Actions Constants ---
+    public static final int CLICK_ACTION_DEFAULT_APP = 0; // Default Clock or Calendar app
+    public static final int CLICK_ACTION_OPEN_STUDIO = 1;  // Glyph Studio Configurator
+    public static final int CLICK_ACTION_CUSTOM_APP = 2;   // Specific Installed App
+    public static final int CLICK_ACTION_CYCLE_THEME = 3;  // Cycle through 27 themes
+    public static final int CLICK_ACTION_CYCLE_STYLE = 4;  // Cycle through styles (Dynamic Animation)
+    public static final int CLICK_ACTION_INERT = 5;        // Do nothing (inert)
+
+    public static final String[] CLICK_ACTION_NAMES = {
+            "Open Default App",
+            "Open Glyph Studio",
+            "Open Any Installed App...",
+            "Cycle Through Themes",
+            "Cycle Style (Animation)",
+            "Inert (Do Nothing)"
+    };
+
+    // --- Clock Tap Action ---
+    public int getClockClickAction(String widgetType) {
+        return prefs.getInt(widgetType + "_clock_click_action", CLICK_ACTION_DEFAULT_APP);
+    }
+
+    public void setClockClickAction(String widgetType, int action) {
+        prefs.edit().putInt(widgetType + "_clock_click_action", action).apply();
+    }
+
+    public String getClockCustomAppPackage(String widgetType) {
+        return prefs.getString(widgetType + "_clock_custom_app_pkg", "");
+    }
+
+    public void setClockCustomAppPackage(String widgetType, String pkg) {
+        prefs.edit().putString(widgetType + "_clock_custom_app_pkg", pkg).apply();
+    }
+
+    public String getClockCustomAppName(String widgetType) {
+        return prefs.getString(widgetType + "_clock_custom_app_name", "");
+    }
+
+    public void setClockCustomAppName(String widgetType, String name) {
+        prefs.edit().putString(widgetType + "_clock_custom_app_name", name).apply();
+    }
+
+    // --- Calendar Tap Action ---
+    public int getCalendarClickAction(String widgetType) {
+        return prefs.getInt(widgetType + "_cal_click_action", CLICK_ACTION_DEFAULT_APP);
+    }
+
+    public void setCalendarClickAction(String widgetType, int action) {
+        prefs.edit().putInt(widgetType + "_cal_click_action", action).apply();
+    }
+
+    public String getCalendarCustomAppPackage(String widgetType) {
+        return prefs.getString(widgetType + "_cal_custom_app_pkg", "");
+    }
+
+    public void setCalendarCustomAppPackage(String widgetType, String pkg) {
+        prefs.edit().putString(widgetType + "_cal_custom_app_pkg", pkg).apply();
+    }
+
+    public String getCalendarCustomAppName(String widgetType) {
+        return prefs.getString(widgetType + "_cal_custom_app_name", "");
+    }
+
+    public void setCalendarCustomAppName(String widgetType, String name) {
+        prefs.edit().putString(widgetType + "_cal_custom_app_name", name).apply();
+    }
+
+    // --- 1-Tap Cycling Helpers ---
+    public void cycleNextTheme(String widgetType) {
+        java.util.List<GlyphTheme.ThemeDef> allThemes = GlyphTheme.getAllThemes();
+        String currentId = getThemeId(widgetType);
+        int currentIdx = GlyphTheme.getThemeIndexById(currentId);
+        int nextIdx = (currentIdx + 1) % allThemes.size();
+        setThemeId(widgetType, allThemes.get(nextIdx).id);
+    }
+
+    public void cycleNextClockStyle(String widgetType) {
+        int currentStyle = getClockStyle(widgetType);
+        int nextStyle = (currentStyle + 1) % com.glyph.widget.compositor.ClockRenderer.STYLE_COUNT;
+        setClockStyle(widgetType, nextStyle);
+    }
+
+    public void cycleNextCalendarStyle(String widgetType) {
+        int currentStyle = getCalendarStyle(widgetType);
+        int nextStyle = (currentStyle + 1) % com.glyph.widget.compositor.CalendarRenderer.STYLE_COUNT;
+        setCalendarStyle(widgetType, nextStyle);
+    }
 }

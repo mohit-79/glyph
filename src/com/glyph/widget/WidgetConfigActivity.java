@@ -1,8 +1,11 @@
 package com.glyph.widget;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -24,6 +27,7 @@ import com.glyph.widget.compositor.ClockRenderer;
 import com.glyph.widget.compositor.WallpaperHelper;
 import com.glyph.widget.compositor.WidgetCanvas;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -168,6 +172,16 @@ public class WidgetConfigActivity extends Activity {
     private Button btnResetMargins;
     private Button btnApplyWidget;
 
+    // Tap Actions fields
+    private Spinner spinnerClockClickAction;
+    private View layoutClockCustomApp;
+    private TextView textClockCustomApp;
+    private Button btnPickClockApp;
+    private Spinner spinnerCalClickAction;
+    private View layoutCalCustomApp;
+    private TextView textCalCustomApp;
+    private Button btnPickCalApp;
+
     private boolean isInitializingTheme = true;
 
     @Override
@@ -190,6 +204,7 @@ public class WidgetConfigActivity extends Activity {
         initClockStudioControls();
         initClockColorControls();
         initControls();
+        initClickActionControls();
         refreshPreview();
     }
 
@@ -313,6 +328,16 @@ public class WidgetConfigActivity extends Activity {
 
         btnResetMargins = (Button) findViewById(R.id.btn_reset_margins);
         btnApplyWidget = (Button) findViewById(R.id.btn_apply_widget);
+
+        spinnerClockClickAction = (Spinner) findViewById(R.id.spinner_clock_click_action);
+        layoutClockCustomApp = findViewById(R.id.layout_clock_custom_app);
+        textClockCustomApp = (TextView) findViewById(R.id.text_clock_custom_app);
+        btnPickClockApp = (Button) findViewById(R.id.btn_pick_clock_app);
+
+        spinnerCalClickAction = (Spinner) findViewById(R.id.spinner_cal_click_action);
+        layoutCalCustomApp = findViewById(R.id.layout_cal_custom_app);
+        textCalCustomApp = (TextView) findViewById(R.id.text_cal_custom_app);
+        btnPickCalApp = (Button) findViewById(R.id.btn_pick_cal_app);
 
         if (GlyphPrefs.WIDGET_CLOCK_CALENDAR.equals(widgetType)) {
             textConfigWidgetTitle.setText("Clock & Calendar");
@@ -1706,6 +1731,148 @@ public class WidgetConfigActivity extends Activity {
                 Toast.makeText(WidgetConfigActivity.this, "Applied to " + textConfigWidgetTitle.getText() + " Widget", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void initClickActionControls() {
+        ArrayAdapter<String> clickAdapter = new ArrayAdapter<String>(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                GlyphPrefs.CLICK_ACTION_NAMES
+        );
+        spinnerClockClickAction.setAdapter(clickAdapter);
+        spinnerCalClickAction.setAdapter(clickAdapter);
+
+        int clockAction = prefs.getClockClickAction(widgetType);
+        spinnerClockClickAction.setSelection(clockAction);
+        updateClockCustomAppDisplay(clockAction);
+
+        spinnerClockClickAction.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (prefs.getClockClickAction(widgetType) != position) {
+                    prefs.setClockClickAction(widgetType, position);
+                    updateClockCustomAppDisplay(position);
+                    safeUpdateWidgets();
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        btnPickClockApp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAppPickerDialog(true);
+            }
+        });
+
+        int calAction = prefs.getCalendarClickAction(widgetType);
+        spinnerCalClickAction.setSelection(calAction);
+        updateCalCustomAppDisplay(calAction);
+
+        spinnerCalClickAction.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (prefs.getCalendarClickAction(widgetType) != position) {
+                    prefs.setCalendarClickAction(widgetType, position);
+                    updateCalCustomAppDisplay(position);
+                    safeUpdateWidgets();
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        btnPickCalApp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAppPickerDialog(false);
+            }
+        });
+    }
+
+    private void updateClockCustomAppDisplay(int action) {
+        if (action == GlyphPrefs.CLICK_ACTION_CUSTOM_APP) {
+            layoutClockCustomApp.setVisibility(View.VISIBLE);
+            String name = prefs.getClockCustomAppName(widgetType);
+            String pkg = prefs.getClockCustomAppPackage(widgetType);
+            if (name != null && !name.isEmpty()) {
+                textClockCustomApp.setText(name + " (" + pkg + ")");
+            } else {
+                textClockCustomApp.setText("No app selected (tap Choose App)");
+            }
+        } else {
+            layoutClockCustomApp.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateCalCustomAppDisplay(int action) {
+        if (action == GlyphPrefs.CLICK_ACTION_CUSTOM_APP) {
+            layoutCalCustomApp.setVisibility(View.VISIBLE);
+            String name = prefs.getCalendarCustomAppName(widgetType);
+            String pkg = prefs.getCalendarCustomAppPackage(widgetType);
+            if (name != null && !name.isEmpty()) {
+                textCalCustomApp.setText(name + " (" + pkg + ")");
+            } else {
+                textCalCustomApp.setText("No app selected (tap Choose App)");
+            }
+        } else {
+            layoutCalCustomApp.setVisibility(View.GONE);
+        }
+    }
+
+    private void showAppPickerDialog(final boolean isForClock) {
+        try {
+            PackageManager pm = getPackageManager();
+            Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+            mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+            List<ResolveInfo> resolveInfos = pm.queryIntentActivities(mainIntent, 0);
+
+            if (resolveInfos == null || resolveInfos.isEmpty()) {
+                Toast.makeText(this, "No launchable apps found", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Collections.sort(resolveInfos, new ResolveInfo.DisplayNameComparator(pm));
+
+            final List<String> appNames = new ArrayList<String>();
+            final List<String> packageNames = new ArrayList<String>();
+
+            for (ResolveInfo ri : resolveInfos) {
+                if (ri.activityInfo != null) {
+                    String label = ri.loadLabel(pm).toString();
+                    String pkg = ri.activityInfo.packageName;
+                    appNames.add(label);
+                    packageNames.add(pkg);
+                }
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(isForClock ? "Select Clock Tap App" : "Select Calendar Tap App");
+            builder.setItems(appNames.toArray(new String[0]), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String selectedName = appNames.get(which);
+                    String selectedPkg = packageNames.get(which);
+                    if (isForClock) {
+                        prefs.setClockCustomAppName(widgetType, selectedName);
+                        prefs.setClockCustomAppPackage(widgetType, selectedPkg);
+                        updateClockCustomAppDisplay(GlyphPrefs.CLICK_ACTION_CUSTOM_APP);
+                    } else {
+                        prefs.setCalendarCustomAppName(widgetType, selectedName);
+                        prefs.setCalendarCustomAppPackage(widgetType, selectedPkg);
+                        updateCalCustomAppDisplay(GlyphPrefs.CLICK_ACTION_CUSTOM_APP);
+                    }
+                    safeUpdateWidgets();
+                    Toast.makeText(WidgetConfigActivity.this, "Set to " + selectedName, Toast.LENGTH_SHORT).show();
+                }
+            });
+            builder.setNegativeButton("Cancel", null);
+            builder.show();
+        } catch (Throwable t) {
+            android.util.Log.e("WidgetConfigActivity", "Error showing app picker", t);
+            Toast.makeText(this, "Error loading apps", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private interface ValueSetter {

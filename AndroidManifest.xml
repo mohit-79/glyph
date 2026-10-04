@@ -15,6 +15,14 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
+    <!-- Query launchable apps for custom app tap actions on Android 11+ -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -47,6 +55,10 @@
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.glyph.widget.ACTION_UPDATE_GLYPH" />
+                <action android:name="com.glyph.widget.ACTION_CYCLE_THEME" />
+                <action android:name="com.glyph.widget.ACTION_CYCLE_CLOCK_STYLE" />
+                <action android:name="com.glyph.widget.ACTION_CYCLE_CAL_STYLE" />
+                <action android:name="com.glyph.widget.ACTION_INERT" />
                 <action android:name="android.intent.action.TIME_SET" />
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
                 <action android:name="android.intent.action.DATE_CHANGED" />

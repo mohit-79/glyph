@@ -12,4 +12,27 @@
         android:scaleType="fitXY"
         android:contentDescription="@string/widget_clock_calendar_name" />
 
+    <!-- Dual Touch Overlay: Left half for Clock, Right half for Calendar -->
+    <LinearLayout
+        android:id="@+id/widget_touch_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/widget_click_clock"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent" />
+
+        <View
+            android:id="@+id/widget_click_calendar"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent" />
+
+    </LinearLayout>
+
 </FrameLayout>

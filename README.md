@@ -145,7 +145,18 @@ Provides independent full-spectrum color customization for the two functional cl
 * **8-Color Quick Palette**: Quick swatches for White, Slate, Charcoal, Red, Amber, Emerald, Cyan, and Violet.
 * **Theme Default Reset**: Instant reset button reverting to the active theme's default border palette.
 
-### 9. Curated Theme Catalog (`GlyphTheme.java`)
+### 9. Widget Tap Gestures & Click Action Studio
+Provides independent touch gesture behaviors for the Clock (left half) and Calendar (right half) regions:
+* **Dual-Zone Touch Overlay**: Horizontal touch partitioning splitting the widget surface into dedicated Clock and Calendar touch zones with fallback background handling.
+* **6 Configurable Behaviors for Clock & Calendar**:
+  1. **Open Default App**: Launches the system Clock / Alarm app (for Clock) or system Calendar (for Calendar) with manufacturer fallback resolution across Google, Samsung, Xiaomi MIUI/HyperOS, OnePlus, and Oppo.
+  2. **Open Glyph Studio**: Instantly opens the widget configurator studio.
+  3. **Open Any Installed App**: Allows selecting any launchable app installed on the device via an alphabetical in-studio app chooser dialog.
+  4. **Cycle Through Themes**: 1-tap live theme cycler stepping through all 27 themes with instant canvas recomposition on the home screen.
+  5. **Cycle Style (Dynamic Animation)**: 1-tap dynamic style switcher cycling through all 12 artistic clock styles or 11 calendar styles directly on the widget.
+  6. **Inert (Do Nothing)**: Intercepts touch events and performs no action, completely inert.
+
+### 10. Curated Theme Catalog (`GlyphTheme.java`)
 Contains 27 curated themes with coordinated colors for backgrounds, borders, and typography:
 1. Obsidian Dark
 2. Porcelain Light
@@ -226,4 +237,5 @@ The output APK is compiled, dexed, aligned, and signed with `debug.keystore`, pr
 * [x] **Commit 11**: Movable & Resizable Test Clock Foundation
 * [x] **Commit 12**: Multiple Artistic Clock Styles (12 Distinct Aesthetic Variants)
 * [x] **Commit 13**: Clock Two-Tone sRGB Gamut Customizer
-* [ ] **Commit 14**: In-App UI/UX Aesthetic Redesign
+* [x] **Commit 15**: Widget Click Actions for Clock & Calendar (Inert, Open App, Cycle Themes, Style Animation)
+* [ ] **Commit 16**: In-App UI/UX Aesthetic Redesign

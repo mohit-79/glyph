@@ -1929,6 +1929,130 @@
 
         </LinearLayout>
 
+        <!-- Widget Tap Actions Card -->
+        <LinearLayout
+            android:id="@+id/card_click_actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Widget Tap Actions"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Configure on-tap gestures for Clock (left) and Calendar (right)"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <!-- Clock Tap Action (Left Side) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Clock Tap Action (Left Side)"
+                android:textColor="@color/accent_blue"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spinner_clock_click_action"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_card" />
+
+            <LinearLayout
+                android:id="@+id/layout_clock_custom_app"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/text_clock_custom_app"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="No app selected"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/btn_pick_clock_app"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_card"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="Choose App..."
+                    android:textColor="@color/accent_blue"
+                    android:textSize="11sp" />
+
+            </LinearLayout>
+
+            <!-- Calendar Tap Action (Right Side) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="Calendar Tap Action (Right Side)"
+                android:textColor="@color/accent_blue"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spinner_cal_click_action"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_card" />
+
+            <LinearLayout
+                android:id="@+id/layout_cal_custom_app"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/text_cal_custom_app"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="No app selected"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/btn_pick_cal_app"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_card"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="Choose App..."
+                    android:textColor="@color/accent_blue"
+                    android:textSize="11sp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
         <!-- Action Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
