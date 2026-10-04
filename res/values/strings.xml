@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Glyph</string>
+    <string name="app_tagline">Artistic Home Screen Widgets</string>
+    <string name="status_system_ok">System Status: Active</string>
+    <string name="status_permissions">Widget Permissions: Ready</string>
+    <string name="version_info">v1.0.0 (Commit 2 Foundation)</string>
+    <string name="build_summary">Pure 2D Canvas Engine Architecture</string>
+</resources>

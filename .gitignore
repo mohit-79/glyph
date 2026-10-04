@@ -1,0 +1,11 @@
+# Build output and intermediate artifacts
+build/
+bin/
+*.apk
+*.idsig
+*.dex
+*.class
+*.keystore
+
+# Local SDK binaries
+lib/android.jar

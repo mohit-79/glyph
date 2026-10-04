@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Outer background -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" />
+            <solid android:color="#0D0F14" />
+            <stroke
+                android:width="2dp"
+                android:color="#272E3B" />
+        </shape>
+    </item>
+    <!-- Inner Accent Pill -->
+    <item
+        android:bottom="20dp"
+        android:left="20dp"
+        android:right="20dp"
+        android:top="20dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="14dp" />
+            <solid android:color="#181C24" />
+            <stroke
+                android:width="2dp"
+                android:color="#3B82F6" />
+        </shape>
+    </item>
+</layer-list>
