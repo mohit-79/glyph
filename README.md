@@ -2,22 +2,61 @@
 
 Glyph is an Android home screen widget app engineered from the ground up with a pure 2D Canvas Compositor engine. Instead of relying on rigid, clunky XML View hierarchies that suffer from multi-line text wrapping or clipping during resize, Glyph renders complete widgets (background pills, borders, calendar grids, and clock digits) onto high-resolution 2D bitmaps and transfers them directly to the launcher via RemoteViews.
 <!-- <img width="1080" height="2400" alt="1791315176167" src="https://github.com/user-attachments/assets/0ab07a93-ed46-4969-b7f8-98c355c36016" /> -->
-<img width="1080" height="2400" alt="1791315176199" src="https://github.com/user-attachments/assets/8552827b-4511-4a65-ba0e-e48642f67c0f" />
-<img width="1080" height="2400" alt="1791315176190" src="https://github.com/user-attachments/assets/66683fd8-72bc-4083-be7e-5b3ae8eb3cbf" />
-<img width="1080" height="2400" alt="1791315176181" src="https://github.com/user-attachments/assets/d6cdef23-dd05-4934-9889-be3c2ea09e7e" />
-<img width="1080" height="2400" alt="1791315176175" src="https://github.com/user-attachments/assets/47bf0d4c-fd7a-4146-881e-6c7bf54574ed" />
-<img width="1080" height="2400" alt="1791315176167" src="https://github.com/user-attachments/assets/38122570-8724-4c36-b554-9dda145b1cf0" />
-<img width="1080" height="2400" alt="1791315176160" src="https://github.com/user-attachments/assets/c7e08d79-7408-41a2-9218-d78f3d1a2be1" />
-<img width="1080" height="2400" alt="1791315176153" src="https://github.com/user-attachments/assets/b6a30952-f70f-4570-8cae-8336b196df52" />
-<img width="1080" height="2400" alt="1791315176147" src="https://github.com/user-attachments/assets/4c45dfd9-9c1d-432e-ab97-c090ae4cee99" />
-<img width="1080" height="2400" alt="1791315176141" src="https://github.com/user-attachments/assets/c09c0ef2-6e74-4ed5-9be6-1af1522020b3" />
-<img width="1080" height="2400" alt="1791315176133" src="https://github.com/user-attachments/assets/b1241c03-08a6-4b0a-82fa-a416cea1528c" />
-<img width="1080" height="2400" alt="1791315176127" src="https://github.com/user-attachments/assets/f01a6d13-358f-41fb-af05-c4cca01a2085" />
-<img width="1080" height="2400" alt="1791315176120" src="https://github.com/user-attachments/assets/75b86264-b495-40ca-b5c3-6a285bb74b62" />
-<img width="1080" height="2400" alt="1791315176113" src="https://github.com/user-attachments/assets/b4286d3f-b514-42af-ad0b-67145da98e55" />
-<img width="1080" height="2400" alt="1791315176101" src="https://github.com/user-attachments/assets/67e3557f-ee92-429b-9a89-a5cca24c077e" />
-
-
+<table>
+  <tr>
+    <td align="center">
+      <img width="220" src="https://github.com/user-attachments/assets/8552827b-4511-4a65-ba0e-e48642f67c0f" />
+    </td>
+    <td align="center">
+      <img width="220" src="https://github.com/user-attachments/assets/66683fd8-72bc-4083-be7e-5b3ae8eb3cbf" />
+    </td>
+    <td align="center">
+      <img width="220" src="https://github.com/user-attachments/assets/d6cdef23-dd05-4934-9889-be3c2ea09e7e" />
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img width="220" src="https://github.com/user-attachments/assets/47bf0d4c-fd7a-4146-881e-6c7bf54574ed" />
+    </td>
+    <td align="center">
+      <img width="220" src="https://github.com/user-attachments/assets/38122570-8724-4c36-b554-9dda145b1cf0" />
+    </td>
+    <td align="center">
+      <img width="220" src="https://github.com/user-attachments/assets/c7e08d79-7408-41a2-9218-d78f3d1a2be1" />
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img width="220" src="https://github.com/user-attachments/assets/b6a30952-f70f-4570-8cae-8336b196df52" />
+    </td>
+    <td align="center">
+      <img width="220" src="https://github.com/user-attachments/assets/4c45dfd9-9c1d-432e-ab97-c090ae4cee99" />
+    </td>
+    <td align="center">
+      <img width="220" src="https://github.com/user-attachments/assets/c09c0ef2-6e74-4ed5-9be6-1af1522020b3" />
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img width="220" src="https://github.com/user-attachments/assets/b1241c03-08a6-4b0a-82fa-a416cea1528c" />
+    </td>
+    <td align="center">
+      <img width="220" src="https://github.com/user-attachments/assets/f01a6d13-358f-41fb-af05-c4cca01a2085" />
+    </td>
+    <td align="center">
+      <img width="220" src="https://github.com/user-attachments/assets/75b86264-b495-40ca-b5c3-6a285bb74b62" />
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img width="220" src="https://github.com/user-attachments/assets/b4286d3f-b514-42af-ad0b-67145da98e55" />
+    </td>
+    <td align="center">
+      <img width="220" src="https://github.com/user-attachments/assets/67e3557f-ee92-429b-9a89-a5cca24c077e" />
+    </td>
+    <td></td>
+  </tr>
+</table>
 
 This repository contains the complete source code, architecture, and standalone build toolchain for Glyph (`com.glyph.widget`).
 
